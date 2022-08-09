@@ -39,6 +39,10 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", authenticateUser, usersRouter);
 
+app.get("/", (req, res) => {
+  res.send("<body><div><strong>BGClients API REST server</strong></div><div>Please authenticate first on /api/v1/auth/login !</div></body>");
+});
+
 // only when ready to deploy
 // app.get('*', (req, res) => {
 //   res.sendFile(path.resolve(__dirname, './client/build', 'index.html'))

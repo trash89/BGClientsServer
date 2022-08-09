@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError, NotFoundError, UnAuthenticatedError } from "../errors/index.js";
-import moment from "moment";
+
 import { supabase, getUserOnServer } from "../supabase/supabaseServer.js";
 
 const getAllUsers = async (req, res) => {

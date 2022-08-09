@@ -38,13 +38,8 @@ const login = async (req, res) => {
   if (error) {
     throw new UnAuthenticatedError("Invalid Credentials");
   }
-  res.cookie("sb-access-token", session.access_token);
-  res.cookie("sb-refresh-token", session.refresh_token);
-  const userOnServer = await getUserOnServer(req, res);
-  if (!userOnServer) {
-    throw new UnAuthenticatedError("Invalid Credentials,userOnServer");
-  }
-  res.status(StatusCodes.OK).json({ user: userOnServer });
+  res.cookie("sb-access-token", session.access_token).cookie("sb-refresh-token", session.refresh_token);
+  res.status(StatusCodes.OK).json({ user });
 };
 
 export {

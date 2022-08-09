@@ -4,9 +4,9 @@ import moment from "moment";
 import { supabase, getUserOnServer } from "../supabase/supabaseServer.js";
 
 const getAllUsers = async (req, res) => {
-  const { data: user, error } = await supabase.auth.api.listUsers();
+  const { data: users, error } = await supabase.auth.api.listUsers();
 
-  res.status(StatusCodes.OK).json({ users: user });
+  res.status(StatusCodes.OK).json({ users });
 };
 
 export { getAllUsers };

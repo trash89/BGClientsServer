@@ -4,16 +4,21 @@ import { BadRequestError, NotFoundError, UnAuthenticatedError } from "../errors/
 import { supabase, getUserOnServer } from "../supabase/supabaseServer.js";
 
 const getAllUsers = async (req, res) => {
-  const { data: users, error } = await supabase.auth.api.listUsers();
-  if (error) {
-    throw new UnAuthenticatedError("Invalid Credentials");
+  const user = req.user;
+  if (user.isAdmin) {
+    const { data: users, error } = await supabase.auth.api.listUsers();
+    if (error) {
+      throw new UnAuthenticatedError("Invalid Credentials");
+    }
+    res.status(StatusCodes.OK).json({ users });
+  } else {
+    res.status(StatusCodes.UNAUTHORIZED).json({ error: "only admin users allowed" });
   }
-  res.status(StatusCodes.OK).json({ users });
 };
 
 const createUser = async (req, res) => {
   if (req.method === "POST") {
-    const user = await getUserOnServer(req, res);
+    const user = req.user;
     if (user.isAdmin) {
       const { email } = req.body;
       if (email) {
@@ -46,7 +51,7 @@ const createUser = async (req, res) => {
 
 const editUser = async (req, res) => {
   if (req.method === "POST") {
-    const user = await getUserOnServer(req, res);
+    const user = req.user;
     if (user.isAdmin) {
       const { id, email, password } = req.body;
       if (email) {
@@ -75,7 +80,7 @@ const editUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   if (req.method === "POST") {
-    const user = await getUserOnServer(req, res);
+    const user = req.user;
     if (user.isAdmin) {
       const { id } = req.body;
       if (id) {

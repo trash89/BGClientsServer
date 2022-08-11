@@ -6,7 +6,7 @@ const auth = async (req, res, next) => {
   if (!userOnServer) {
     throw new UnAuthenticatedError("Authentication Invalid");
   }
-  req.user = { user: userOnServer };
+  req.user = { ...userOnServer };
   next();
 };
 

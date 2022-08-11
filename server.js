@@ -2,6 +2,7 @@ import express from "express";
 const app = express();
 import dotenv from "dotenv";
 dotenv.config();
+import cors from "cors";
 import "express-async-errors";
 import morgan from "morgan";
 
@@ -21,6 +22,7 @@ import usersRouter from "./routes/usersRoutes.js";
 import notFoundMiddleware from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import authenticateUser from "./middleware/auth.js";
+const port = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
@@ -31,6 +33,19 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // only when ready to deploy
 // app.use(express.static(path.resolve(__dirname, './client/build')))
 
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Credentials", true);
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+app.use(
+  cors({
+    origin: [`http://localhost:${port}`, `https://localhost:${port}`, "http://localhost:3000"],
+    credentials: "true",
+  })
+);
 app.use(express.json());
 app.use(helmet());
 app.use(xss());
@@ -50,8 +65,6 @@ app.get("/", (req, res) => {
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
-
-const port = process.env.PORT || 5000;
 
 const start = async () => {
   try {

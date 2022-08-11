@@ -38,8 +38,10 @@ const login = async (req, res) => {
   if (error) {
     throw new UnAuthenticatedError("Invalid Credentials");
   }
-  res.cookie("sb-access-token", session.access_token).cookie("sb-refresh-token", session.refresh_token);
-  res.status(StatusCodes.OK).json({ user });
+  const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").select("isAdmin").eq("user_id", user.id).single();
+  res.cookie("sb-access-token", session.access_token);
+  res.cookie("sb-refresh-token", session.refresh_token);
+  res.status(StatusCodes.OK).json({ user: { ...user, isAdmin: localUser.isAdmin }, session });
 };
 
 export {

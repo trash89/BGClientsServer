@@ -8,8 +8,15 @@ export const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function getUserOnServer(req, res) {
   const { user, error: errorUser } = await supabase.auth.api.getUserByCookie(req, res);
-  if (errorUser) return null;
-  const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").select("isAdmin").eq("user_id", user.id).single();
-  if (errorLocalUser) return null;
+  if (errorUser) {
+    console.log("errorUser=", errorUser);
+    return null;
+  }
+  const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").select("id,user_id,isAdmin").eq("user_id", user.id).single();
+
+  if (errorLocalUser) {
+    console.log("errorLocalUser=", errorLocalUser);
+    return null;
+  }
   return { ...user, isAdmin: localUser.isAdmin };
 }

@@ -60,7 +60,7 @@ const getOneClient = async (req, res) => {
   const user = req.user;
   const { id } = req.params;
   if (id) {
-    const { data: client, error } = await supabase.from("clients").select("*").eq("id", id);
+    const { data: client, error } = await supabase.from("clients").select("*").eq("id", id).single();
     if (error) {
       throw new NotFoundError(error.message);
     }
@@ -71,19 +71,17 @@ const getOneClient = async (req, res) => {
 };
 
 const editClient = async (req, res) => {
-  if (req.method === "POST") {
+  if (req.method === "PATCH") {
     const user = req.user;
     if (user.isAdmin) {
-      const { id, email, password, name, description, address, user_id, localuser_id } = req.body;
+      const { id, email, name, description, address, user_id, localuser_id } = req.body;
       if (email) {
         const { data: editUser, error: errorEditUser } = await supabase.auth.api.updateUserById(user_id, {
           email,
           email_confirm: true,
-          password,
         });
         if (errorEditUser) return res.status(401).json({ error: `editUser:${errorEditUser.message}` });
         const { data: client, error } = await supabase.from("clients").update({ email, name, description, address, user_id, localuser_id }).eq("id", id);
-
         if (error) {
           return res.status(401).json({ error: `editClient:${error.message}` });
         }
@@ -92,7 +90,7 @@ const editClient = async (req, res) => {
         res.status(401).json({ error: "no email provided for editing the user" });
       }
     } else {
-      res.status(401).json({ error: "only POST method is accepted" });
+      res.status(401).json({ error: "only PATCH method is accepted" });
     }
   } else {
     res.status(401).json({ error: "only admin users allowed" });
@@ -100,29 +98,32 @@ const editClient = async (req, res) => {
 };
 
 const deleteClient = async (req, res) => {
-  if (req.method === "POST") {
+  if (req.method === "DELETE") {
     const user = req.user;
     if (user.isAdmin) {
-      const { id } = req.body;
+      const { id } = req.params;
       if (id) {
-        const { data: client, error: errorClient } = await supabase.from("clients").delete().eq("user_id", id);
+        const { data: clientSel, error: errorClientSel } = await supabase.from("clients").select("id,localuser_id,user_id").eq("id", id).single();
+        if (errorClientSel) {
+          return res.status(401).json({ error: `client delete:${errorClientSel.message}` });
+        }
+        const { data: client, error: errorClient } = await supabase.from("clients").delete().eq("id", id);
         if (errorClient) {
           return res.status(401).json({ error: `client delete:${errorClient.message}` });
         }
-        const { data: localUser, error: errorLocalUserDelete } = await supabase.from("localusers").delete().eq("user_id", id);
+        const { data: localUser, error: errorLocalUserDelete } = await supabase.from("localusers").delete().eq("id", clientSel.localuser_id);
         if (errorLocalUserDelete) {
           return res.status(401).json({ error: `localUser delete:${errorLocalUserDelete.message}` });
         }
 
-        const { data: deleteUser, error: errorDeleteUser } = await supabase.auth.api.deleteUser(id);
+        const { data: deleteUser, error: errorDeleteUser } = await supabase.auth.api.deleteUser(clientSel.user_id);
         if (errorDeleteUser) return res.status(401).json({ error: `deleteUser:${errorDeleteUser.message}` });
-
         return res.status(200).json({ user: deleteUser });
       } else {
         res.status(401).json({ error: "no id provided for deleting the user" });
       }
     } else {
-      res.status(401).json({ error: "only POST method is accepted" });
+      res.status(401).json({ error: "only DELETE method is accepted" });
     }
   } else {
     res.status(401).json({ error: "only admin users allowed" });

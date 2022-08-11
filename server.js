@@ -16,7 +16,7 @@ import cookieParser from "cookie-parser";
 
 // routers
 import authRouter from "./routes/authRoutes.js";
-import usersRouter from "./routes/usersRoutes.js";
+import clientsRouter from "./routes/clientsRoutes.js";
 
 // middleware
 import notFoundMiddleware from "./middleware/not-found.js";
@@ -33,6 +33,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // only when ready to deploy
 // app.use(express.static(path.resolve(__dirname, './client/build')))
 
+//app.set("trust proxy", 1);
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Credentials", true);
@@ -42,7 +43,7 @@ app.use(function (req, res, next) {
 
 app.use(
   cors({
-    origin: [`http://localhost:${port}`, `https://localhost:${port}`, "http://localhost:3000"],
+    origin: ["http://localhost:3000"],
     credentials: "true",
   })
 );
@@ -52,7 +53,7 @@ app.use(xss());
 app.use(cookieParser());
 
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/users", authenticateUser, usersRouter);
+app.use("/api/v1/clients", authenticateUser, clientsRouter);
 
 app.get("/", (req, res) => {
   res.send("<body><div><strong>BGClients API REST server</strong></div><div>Please authenticate first on /api/v1/auth/login !</div></body>");

@@ -3,43 +3,50 @@ import { BadRequestError, NotFoundError, UnAuthenticatedError } from "../errors/
 
 import { supabase, getUserOnServer } from "../supabase/supabaseServer.js";
 
-const getAllUsers = async (req, res) => {
+const getAllClients = async (req, res) => {
   const user = req.user;
-  if (user.isAdmin) {
-    const { data: users, error } = await supabase.auth.api.listUsers();
-    if (error) {
-      throw new UnAuthenticatedError("Invalid Credentials");
-    }
-    res.status(StatusCodes.OK).json({ users });
-  } else {
-    res.status(StatusCodes.UNAUTHORIZED).json({ error: "only admin users allowed" });
+  let query = supabase.from("clients").select("*");
+  if (!user.isAdmin) {
+    query = query.eq("user_id", user.id);
   }
+  const { data: clients, error } = await query;
+  if (error) {
+    throw new NotFoundError(error.message);
+  }
+  res.status(StatusCodes.OK).json({ clients, error });
 };
 
-const createUser = async (req, res) => {
+const createClient = async (req, res) => {
   if (req.method === "POST") {
     const user = req.user;
     if (user.isAdmin) {
-      const { email } = req.body;
-      if (email) {
+      const { email, password, name, description, address } = req.body;
+      if (email && email !== "" && password && password !== "" && name && name !== "" && description && description !== "" && address && address !== "") {
         const { data: createdUser, error: errorCreatedUser } = await supabase.auth.api.createUser({
-          email: email,
+          email,
           email_confirm: true,
-          password: "secret123",
+          password,
         });
         if (errorCreatedUser) return res.status(StatusCodes.NOT_FOUND).json({ error: `createdUser:${errorCreatedUser.message}` });
 
-        const { error: errorLocalUser } = await supabase.from("localusers").insert({ user_id: createdUser.id, isAdmin: false }, { returning: "minimal" });
+        const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").insert({ user_id: createdUser.id, isAdmin: false });
         if (errorLocalUser) {
           return res.status(StatusCodes.NOT_FOUND).json({ error: `localUser:${errorLocalUser.message}` });
         }
-        const { data: localUser, error: errorLocalUserSelect } = await supabase.from("localusers").select("*").eq("user_id", createdUser.id).single();
-        if (errorLocalUserSelect) {
-          return res.status(StatusCodes.NOT_FOUND).json({ error: `localUser select:${errorLocalUserSelect.message}` });
+        const { data: client, error: errorClient } = await supabase.from("clients").insert({
+          email,
+          name,
+          description,
+          address,
+          localuser_id: localUser[0].id,
+          user_id: createdUser.id,
+        });
+        if (errorClient) {
+          return res.status(StatusCodes.NOT_FOUND).json({ error: `createClient:${errorClient.message}` });
         }
-        return res.status(StatusCodes.OK).json({ user: localUser });
+        return res.status(StatusCodes.OK).json({ client });
       } else {
-        res.status(StatusCodes.UNAUTHORIZED).json({ error: "no email provided for creating the user" });
+        res.status(StatusCodes.UNAUTHORIZED).json({ error: "no email/password/name/description/address provided for creating the user" });
       }
     } else {
       res.status(StatusCodes.UNAUTHORIZED).json({ error: "only POST method is accepted" });
@@ -49,24 +56,38 @@ const createUser = async (req, res) => {
   }
 };
 
-const editUser = async (req, res) => {
+const getOneClient = async (req, res) => {
+  const user = req.user;
+  const { id } = req.params;
+  if (id) {
+    const { data: client, error } = await supabase.from("clients").select("*").eq("id", id);
+    if (error) {
+      throw new NotFoundError(error.message);
+    }
+    res.status(StatusCodes.OK).json({ client, error });
+  } else {
+    res.status(StatusCodes.NOT_FOUND).json({ error: "no id provided for getting the user" });
+  }
+};
+
+const editClient = async (req, res) => {
   if (req.method === "POST") {
     const user = req.user;
     if (user.isAdmin) {
-      const { id, email, password } = req.body;
+      const { id, email, password, name, description, address, user_id, localuser_id } = req.body;
       if (email) {
-        const { data: editUser, error: errorEditUser } = await supabase.auth.api.updateUserById(id, {
-          email: email,
+        const { data: editUser, error: errorEditUser } = await supabase.auth.api.updateUserById(user_id, {
+          email,
           email_confirm: true,
-          password: password,
+          password,
         });
         if (errorEditUser) return res.status(401).json({ error: `editUser:${errorEditUser.message}` });
+        const { data: client, error } = await supabase.from("clients").update({ email, name, description, address, user_id, localuser_id }).eq("id", id);
 
-        const { data: localUser, error: errorLocalUserSelect } = await supabase.from("localusers").select("*").eq("user_id", editUser.id).single();
-        if (errorLocalUserSelect) {
-          return res.status(401).json({ error: `localUser select:${errorLocalUserSelect.message}` });
+        if (error) {
+          return res.status(401).json({ error: `editClient:${error.message}` });
         }
-        return res.status(200).json({ user: localUser });
+        return res.status(200).json({ client, error });
       } else {
         res.status(401).json({ error: "no email provided for editing the user" });
       }
@@ -78,7 +99,7 @@ const editUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+const deleteClient = async (req, res) => {
   if (req.method === "POST") {
     const user = req.user;
     if (user.isAdmin) {
@@ -108,4 +129,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-export { getAllUsers, createUser, editUser, deleteUser };
+export { getAllClients, getOneClient, createClient, editClient, deleteClient };

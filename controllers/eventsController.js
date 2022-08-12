@@ -5,19 +5,18 @@ const getAllEvents = async (req, res) => {
   const user = req.user;
   let query = supabase
     .from("events")
-    .select("id,client_id,ev_name,ev_description,ev_date,user_id,clients(name)")
+    .select("id,client_id,ev_name,ev_description,ev_date,user_id,clients(name)", { count: "exact" })
     .order("client_id", { ascending: true })
     .order("ev_date", { ascending: true })
     .order("ev_name", { ascending: true });
   if (!user.isAdmin) {
     query = query.eq("user_id", user.id);
   }
-  const { data: events, error } = await query;
-  console.log(events);
+  const { data: events, error, count } = await query;
   if (error) {
-    return res.status(StatusCodes.NOT_FOUND).json({ events, error: { ...error, msg: "getAllEvents" } });
+    return res.status(StatusCodes.NOT_FOUND).json({ events, error: { ...error, msg: "getAllEvents" }, count });
   }
-  res.status(StatusCodes.OK).json({ events, error });
+  res.status(StatusCodes.OK).json({ events, error, count });
 };
 
 const createEvent = async (req, res) => {

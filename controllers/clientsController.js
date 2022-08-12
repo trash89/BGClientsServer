@@ -16,15 +16,15 @@ const getOneClient = async (req, res) => {
 
 const getAllClients = async (req, res) => {
   const user = req.user;
-  let query = supabase.from("clients").select("*").order("name", { ascending: true });
+  let query = supabase.from("clients").select("*", { count: "exact" }).order("name", { ascending: true });
   if (!user.isAdmin) {
     query = query.eq("user_id", user.id);
   }
-  const { data: clients, error } = await query;
+  const { data: clients, error, count } = await query;
   if (error) {
-    return res.status(StatusCodes.NOT_FOUND).json({ clients, error: { ...error, msg: "getAllClients" } });
+    return res.status(StatusCodes.NOT_FOUND).json({ clients, error: { ...error, msg: "getAllClients" }, count });
   }
-  res.status(StatusCodes.OK).json({ clients, error });
+  res.status(StatusCodes.OK).json({ clients, error, count });
 };
 
 const createClient = async (req, res) => {

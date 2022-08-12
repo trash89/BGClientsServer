@@ -39,8 +39,8 @@ const login = async (req, res) => {
     throw new UnAuthenticatedError("Invalid Credentials");
   }
   const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").select("isAdmin").eq("user_id", user.id).single();
-  //res.cookie("sb-access-token", session.access_token, { path: "/", maxAge: 60 * 60 * 6 });
-  //res.cookie("sb-refresh-token", session.refresh_token, { path: "/", maxAge: 60 * 60 * 6 });
+  res.cookie("sb-access-token", session.access_token, { path: "/", maxAge: 60 * 60 * 6 });
+  res.cookie("sb-refresh-token", session.refresh_token, { path: "/", maxAge: 60 * 60 * 6 });
   res.status(StatusCodes.OK).json({ user: { ...user, isAdmin: localUser.isAdmin }, session });
 };
 

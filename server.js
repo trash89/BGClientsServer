@@ -44,7 +44,7 @@ if (process.env.NODE_ENV !== "production") {
 app.use(
   cors({
     origin: [origin],
-    credentials: "true",
+    credentials: true,
     optionsSuccessStatus: 200,
     methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
   })
@@ -53,7 +53,7 @@ app.options(
   "*",
   cors({
     origin: [origin],
-    credentials: "true",
+    credentials: true,
     optionsSuccessStatus: 200,
     methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
   })

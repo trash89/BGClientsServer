@@ -1,7 +1,59 @@
 import { supabase } from "../supabase/supabaseServer.js";
 import { StatusCodes } from "http-status-codes";
 
-const getOneClient = async (req, res) => {
+const getAllEvents = async (req, res) => {
+  const user = req.user;
+  let query = supabase
+    .from("events")
+    .select("id,client_id,ev_name,ev_description,ev_date,user_id,clients(name)")
+    .order("client_id", { ascending: true })
+    .order("ev_date", { ascending: true })
+    .order("ev_name", { ascending: true });
+  if (!user.isAdmin) {
+    query = query.eq("user_id", user.id);
+  }
+  const { data: events, error } = await query;
+  console.log(events);
+  if (error) {
+    return res.status(StatusCodes.NOT_FOUND).json({ events, error: { ...error, msg: "getAllEvents" } });
+  }
+  res.status(StatusCodes.OK).json({ events, error });
+};
+
+const createEvent = async (req, res) => {
+  if (req.method === "POST") {
+    const user = req.user;
+    if (user.isAdmin) {
+      const { client_id, ev_name, ev_description, ev_date } = req.body;
+      console.log(req.body);
+      if (client_id && client_id !== "" && ev_name && ev_name !== "" && ev_description && ev_description !== "" && ev_date && ev_date !== "") {
+        const { data: client, error: errorClient } = await supabase.from("clients").select("user_id").eq("id", client_id).single();
+        if (errorClient) {
+          return res.status(StatusCodes.NOT_FOUND).json({ event: [], error: { ...errorClient, msg: "createEvent,clients" } });
+        }
+        const { data: event, error: errorEvent } = await supabase.from("events").insert({
+          client_id,
+          ev_name,
+          ev_description,
+          ev_date,
+          user_id: client.user_id,
+        });
+        if (errorEvent) {
+          return res.status(StatusCodes.NOT_FOUND).json({ event, error: { ...errorEvent, msg: "createEvent,events" } });
+        }
+        return res.status(StatusCodes.OK).json({ event, error: errorEvent });
+      } else {
+        res.status(StatusCodes.UNAUTHORIZED).json({ event: [], error: { msg: "no client_id/name/description/date provided for creating the event" } });
+      }
+    } else {
+      res.status(StatusCodes.UNAUTHORIZED).json({ event: [], error: { msg: "only POST method is accepted" } });
+    }
+  } else {
+    res.status(StatusCodes.UNAUTHORIZED).json({ event: [], error: { msg: "only admin users allowed" } });
+  }
+};
+
+const getOneEvent = async (req, res) => {
   const { id } = req.params;
   if (id) {
     const { data: client, error } = await supabase.from("clients").select("*").eq("id", id).single();
@@ -14,60 +66,7 @@ const getOneClient = async (req, res) => {
   }
 };
 
-const getAllClients = async (req, res) => {
-  const user = req.user;
-  let query = supabase.from("clients").select("*").order("name", { ascending: true });
-  if (!user.isAdmin) {
-    query = query.eq("user_id", user.id);
-  }
-  const { data: clients, error } = await query;
-  if (error) {
-    return res.status(StatusCodes.NOT_FOUND).json({ clients, error: { ...error, msg: "getAllClients" } });
-  }
-  res.status(StatusCodes.OK).json({ clients, error });
-};
-
-const createClient = async (req, res) => {
-  if (req.method === "POST") {
-    const user = req.user;
-    if (user.isAdmin) {
-      const { email, password, name, description, address } = req.body;
-      if (email && email !== "" && password && password !== "" && name && name !== "" && description && description !== "" && address && address !== "") {
-        const { data: createdUser, error: errorCreatedUser } = await supabase.auth.api.createUser({
-          email,
-          email_confirm: true,
-          password,
-        });
-        if (errorCreatedUser) return res.status(StatusCodes.NOT_FOUND).json({ client: [], error: { ...errorCreatedUser, msg: "createClient,createUser" } });
-
-        const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").insert({ user_id: createdUser.id, isAdmin: false });
-        if (errorLocalUser) {
-          return res.status(StatusCodes.NOT_FOUND).json({ client: [], error: { ...errorLocalUser, msg: "createClient, localusers" } });
-        }
-        const { data: client, error: errorClient } = await supabase.from("clients").insert({
-          email,
-          name,
-          description,
-          address,
-          localuser_id: localUser[0].id,
-          user_id: createdUser.id,
-        });
-        if (errorClient) {
-          return res.status(StatusCodes.NOT_FOUND).json({ client, error: { ...errorClient, msg: "createClient,clients" } });
-        }
-        return res.status(StatusCodes.OK).json({ client, error: errorClient });
-      } else {
-        res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "no email/password/name/description/address provided for creating the user" } });
-      }
-    } else {
-      res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "only POST method is accepted" } });
-    }
-  } else {
-    res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "only admin users allowed" } });
-  }
-};
-
-const editClient = async (req, res) => {
+const editEvent = async (req, res) => {
   if (req.method === "PATCH") {
     const user = req.user;
     if (user.isAdmin) {
@@ -94,7 +93,7 @@ const editClient = async (req, res) => {
   }
 };
 
-const deleteClient = async (req, res) => {
+const deleteEvent = async (req, res) => {
   if (req.method === "DELETE") {
     const user = req.user;
     if (user.isAdmin) {
@@ -126,4 +125,4 @@ const deleteClient = async (req, res) => {
   }
 };
 
-export { getAllClients, getOneClient, createClient, editClient, deleteClient };
+export { getAllEvents, getOneEvent, createEvent, editEvent, deleteEvent };

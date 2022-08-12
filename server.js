@@ -17,6 +17,7 @@ import cookieParser from "cookie-parser";
 // routers
 import authRouter from "./routes/authRoutes.js";
 import clientsRouter from "./routes/clientsRoutes.js";
+import eventsRouter from "./routes/eventsRoutes.js";
 
 // middleware
 import notFoundMiddleware from "./middleware/not-found.js";
@@ -60,6 +61,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/clients", authenticateUser, clientsRouter);
+app.use("/api/v1/events", authenticateUser, eventsRouter);
 
 app.get("/", (req, res) => {
   res.send("<body><div><strong>BGClients API REST server</strong></div><div>Please authenticate first on /api/v1/auth/login !</div></body>");

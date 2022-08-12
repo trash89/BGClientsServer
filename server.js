@@ -34,8 +34,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // app.use(express.static(path.resolve(__dirname, './client/build')))
 
 //app.set("trust proxy", 1);
+
+let origin = "https://bg-clients.vercel.app";
+if (process.env.NODE_ENV !== "production") {
+  origin = "http://localhost:3000";
+}
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Origin", origin);
   res.header("Access-Control-Allow-Credentials", true);
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
@@ -43,10 +48,11 @@ app.use(function (req, res, next) {
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: [origin],
     credentials: "true",
   })
 );
+
 app.use(express.json());
 app.use(helmet());
 app.use(xss());

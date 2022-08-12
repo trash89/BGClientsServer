@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 import cors from "cors";
 import "express-async-errors";
+import session from "express-session";
+//var session = require("express-session");
 import morgan from "morgan";
 
 import { dirname } from "path";
@@ -35,6 +37,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // app.use(express.static(path.resolve(__dirname, './client/build')))
 
 app.set("trust proxy", 1);
+app.use(
+  session({
+    proxy: true, // add this when behind a reverse proxy, if you need secure cookies
+    cookie: {
+      secure: true,
+      maxAge: 5184000000, // 2 months
+    },
+  })
+);
 
 let origin = "https://bg-clients.vercel.app";
 if (process.env.NODE_ENV !== "production") {

@@ -45,13 +45,24 @@ app.use(
   cors({
     origin: [origin],
     credentials: "true",
+    optionsSuccessStatus: 200,
+    methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
+  })
+);
+app.options(
+  "*",
+  cors({
+    origin: [origin],
+    credentials: "true",
+    optionsSuccessStatus: 200,
     methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
   })
 );
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", origin);
   res.header("Access-Control-Allow-Credentials", true);
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, UPDATE, PUT, PATCH, OPTIONS");
   next();
 });
 

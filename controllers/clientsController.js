@@ -1,17 +1,16 @@
 import { StatusCodes } from "http-status-codes";
-import { BadRequestError, NotFoundError, UnAuthenticatedError } from "../errors/index.js";
 
-import { supabase, getUserOnServer } from "../supabase/supabaseServer.js";
+import { supabase } from "../supabase/supabaseServer.js";
 
 const getAllClients = async (req, res) => {
   const user = req.user;
-  let query = supabase.from("clients").select("*");
+  let query = supabase.from("clients").select("*").order("name", { ascending: true });
   if (!user.isAdmin) {
     query = query.eq("user_id", user.id);
   }
   const { data: clients, error } = await query;
   if (error) {
-    throw new NotFoundError(error.message);
+    return res.status(StatusCodes.NOT_FOUND).json({ clients, error: { ...error, msg: "getAllClients" } });
   }
   res.status(StatusCodes.OK).json({ clients, error });
 };
@@ -27,11 +26,11 @@ const createClient = async (req, res) => {
           email_confirm: true,
           password,
         });
-        if (errorCreatedUser) return res.status(StatusCodes.NOT_FOUND).json({ error: `createdUser:${errorCreatedUser.message}` });
+        if (errorCreatedUser) return res.status(StatusCodes.NOT_FOUND).json({ client: [], error: { ...errorCreatedUser, msg: "createClient,createUser" } });
 
         const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").insert({ user_id: createdUser.id, isAdmin: false });
         if (errorLocalUser) {
-          return res.status(StatusCodes.NOT_FOUND).json({ error: `localUser:${errorLocalUser.message}` });
+          return res.status(StatusCodes.NOT_FOUND).json({ client: [], error: { ...errorLocalUser, msg: "createClient, localusers" } });
         }
         const { data: client, error: errorClient } = await supabase.from("clients").insert({
           email,
@@ -42,31 +41,30 @@ const createClient = async (req, res) => {
           user_id: createdUser.id,
         });
         if (errorClient) {
-          return res.status(StatusCodes.NOT_FOUND).json({ error: `createClient:${errorClient.message}` });
+          return res.status(StatusCodes.NOT_FOUND).json({ client, error: { ...errorClient, msg: "createClient,clients" } });
         }
-        return res.status(StatusCodes.OK).json({ client });
+        return res.status(StatusCodes.OK).json({ client, error: errorClient });
       } else {
-        res.status(StatusCodes.UNAUTHORIZED).json({ error: "no email/password/name/description/address provided for creating the user" });
+        res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "no email/password/name/description/address provided for creating the user" } });
       }
     } else {
-      res.status(StatusCodes.UNAUTHORIZED).json({ error: "only POST method is accepted" });
+      res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "only POST method is accepted" } });
     }
   } else {
-    res.status(StatusCodes.UNAUTHORIZED).json({ error: "only admin users allowed" });
+    res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "only admin users allowed" } });
   }
 };
 
 const getOneClient = async (req, res) => {
-  const user = req.user;
   const { id } = req.params;
   if (id) {
     const { data: client, error } = await supabase.from("clients").select("*").eq("id", id).single();
     if (error) {
-      throw new NotFoundError(error.message);
+      return res.status(StatusCodes.NOT_FOUND).json({ client, error: { ...error, msg: "getOneClient" } });
     }
     res.status(StatusCodes.OK).json({ client, error });
   } else {
-    res.status(StatusCodes.NOT_FOUND).json({ error: "no id provided for getting the user" });
+    res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "no id provided for getting the user" } });
   }
 };
 
@@ -80,20 +78,20 @@ const editClient = async (req, res) => {
           email,
           email_confirm: true,
         });
-        if (errorEditUser) return res.status(401).json({ error: `editUser:${errorEditUser.message}` });
+        if (errorEditUser) return res.status(StatusCodes.NOT_FOUND).json({ client: [], error: { ...errorEditUser, msg: "editClient,updateUserById" } });
         const { data: client, error } = await supabase.from("clients").update({ email, name, description, address, user_id, localuser_id }).eq("id", id);
         if (error) {
-          return res.status(401).json({ error: `editClient:${error.message}` });
+          return res.status(StatusCodes.NOT_FOUND).json({ client, error: { ...error, msg: "editClient,clients" } });
         }
-        return res.status(200).json({ client, error });
+        return res.status(StatusCodes.OK).json({ client, error });
       } else {
-        res.status(401).json({ error: "no email provided for editing the user" });
+        res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "no email provided for editing the user" } });
       }
     } else {
-      res.status(401).json({ error: "only PATCH method is accepted" });
+      res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "only PATCH method is accepted" } });
     }
   } else {
-    res.status(401).json({ error: "only admin users allowed" });
+    res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "only admin users allowed" } });
   }
 };
 
@@ -105,28 +103,27 @@ const deleteClient = async (req, res) => {
       if (id) {
         const { data: clientSel, error: errorClientSel } = await supabase.from("clients").select("id,localuser_id,user_id").eq("id", id).single();
         if (errorClientSel) {
-          return res.status(401).json({ error: `client delete:${errorClientSel.message}` });
+          return res.status(StatusCodes.NOT_FOUND).json({ client: clientSel, error: { ...errorClientSel, msg: "deleteClient,select" } });
         }
         const { data: client, error: errorClient } = await supabase.from("clients").delete().eq("id", id);
         if (errorClient) {
-          return res.status(401).json({ error: `client delete:${errorClient.message}` });
+          return res.status(StatusCodes.NOT_FOUND).json({ client, error: { ...errorClient, msg: "deleteClient,delete" } });
         }
         const { data: localUser, error: errorLocalUserDelete } = await supabase.from("localusers").delete().eq("id", clientSel.localuser_id);
         if (errorLocalUserDelete) {
-          return res.status(401).json({ error: `localUser delete:${errorLocalUserDelete.message}` });
+          return res.status(StatusCodes.NOT_FOUND).json({ client, error: { ...errorLocalUserDelete, msg: "deleteClient,localusers" } });
         }
-
         const { data: deleteUser, error: errorDeleteUser } = await supabase.auth.api.deleteUser(clientSel.user_id);
-        if (errorDeleteUser) return res.status(401).json({ error: `deleteUser:${errorDeleteUser.message}` });
-        return res.status(200).json({ user: deleteUser });
+        if (errorDeleteUser) return res.status(StatusCodes.NOT_FOUND).json({ client, error: { ...errorDeleteUser, msg: "deleteClient,deleteUser" } });
+        return res.status(StatusCodes.OK).json({ client: clientSel, error: errorDeleteUser });
       } else {
-        res.status(401).json({ error: "no id provided for deleting the user" });
+        res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "no id provided for deleting the client" } });
       }
     } else {
-      res.status(401).json({ error: "only DELETE method is accepted" });
+      res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "only DELETE method is accepted" } });
     }
   } else {
-    res.status(401).json({ error: "only admin users allowed" });
+    res.status(StatusCodes.UNAUTHORIZED).json({ client: [], error: { msg: "only admin users allowed" } });
   }
 };
 

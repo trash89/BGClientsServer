@@ -18,7 +18,7 @@ const getAllEvents = async (req, res) => {
   const user = req.user;
   let query = supabase
     .from("events")
-    .select("id,client_id,ev_name,ev_description,ev_date,user_id,clients(name)", { count: "exact" })
+    .select("id,client_id,ev_name,ev_description,ev_date,user_id,displayed,clients(name)", { count: "exact" })
     .order("client_id", { ascending: true })
     .order("ev_date", { ascending: true })
     .order("ev_name", { ascending: true });
@@ -68,8 +68,8 @@ const editEvent = async (req, res) => {
   if (req.method === "PATCH") {
     const user = req.user;
     if (user.isAdmin) {
-      const { id, client_id, ev_name, ev_description, ev_date, user_id } = req.body;
-      const { data: event, error } = await supabase.from("events").update({ client_id, ev_name, ev_description, ev_date, user_id }).eq("id", id);
+      const { id, client_id, ev_name, ev_description, ev_date, user_id, displayed } = req.body;
+      const { data: event, error } = await supabase.from("events").update({ client_id, ev_name, ev_description, ev_date, user_id, displayed }).eq("id", id);
       if (error) {
         return res.status(StatusCodes.BAD_REQUEST).json({ event, error: { ...error, msg: "editEvent,update events" } });
       }

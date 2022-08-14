@@ -56,7 +56,9 @@ const createClient = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorClient, msg: "createClient,insert clients" } });
         }
         const { data, error } = await supabase.storage.createBucket(`client${client[0].id}`, { public: false });
-        console.log(data, error);
+        if (error) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { ...error, msg: "createClient,create bucket" } });
+        }
         return res.status(StatusCodes.OK).json({ client, error: errorClient });
       } else {
         res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { message: "no data provided for creating the user" } });
@@ -102,28 +104,42 @@ const deleteClient = async (req, res) => {
     if (user.isAdmin) {
       const { id } = req.params;
       if (id) {
+        // select the client
         const { data: clientSel, error: errorClientSel } = await supabase.from("clients").select("id,email,localuser_id,user_id").eq("id", id).single();
         if (errorClientSel) {
           return res.status(StatusCodes.BAD_REQUEST).json({ client: clientSel, error: { ...errorClientSel, msg: "deleteClient,select client" } });
         }
+        // delete from events
         const { data: events, error: errorEvents } = await supabase.from("events").delete().eq("client_id", clientSel.id);
         if (errorEvents) {
           return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorEvents, msg: "deleteClient,delete events" } });
         }
+        // delete from clients
         const { data: client, error: errorClient } = await supabase.from("clients").delete().eq("id", id);
         if (errorClient) {
           return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorClient, msg: "deleteClient,delete clients" } });
         }
+        // delete the user
         const { data: localUser, error: errorLocalUserDelete } = await supabase.from("localusers").delete().eq("id", clientSel.localuser_id);
         if (errorLocalUserDelete) {
           return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorLocalUserDelete, msg: "deleteClient,delete localusers" } });
         }
+        // empty the bucket
         const { data: emptyBucket, error: errorEmptyBucket } = await supabase.storage.emptyBucket(`client${clientSel.id}`);
-        console.log(emptyBucket, errorEmptyBucket);
+        if (errorEmptyBucket) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorEmptyBucket, msg: "deleteClient,empty bucket" } });
+        }
+        // delete the bucket
         const { data, error } = await supabase.storage.deleteBucket(`client${clientSel.id}`);
-        console.log(data, error);
+        if (error) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...error, msg: "deleteClient,delete bucket" } });
+        }
+        // delete the user
         const { data: deleteUser, error: errorDeleteUser } = await supabase.auth.api.deleteUser(clientSel.user_id);
-        if (errorDeleteUser) return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorDeleteUser, msg: "deleteClient,deleteUser" } });
+        if (errorDeleteUser) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorDeleteUser, msg: "deleteClient,deleteUser" } });
+        }
+        // OK, return the deleted client
         return res.status(StatusCodes.OK).json({ client: clientSel, error: errorDeleteUser });
       } else {
         res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { message: "no id provided for deleting the client" } });

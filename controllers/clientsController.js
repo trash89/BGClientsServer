@@ -55,11 +55,11 @@ const createClient = async (req, res) => {
         if (errorClient) {
           return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorClient, msg: "createClient,insert clients" } });
         }
+        const { data, error } = await supabase.storage.createBucket(`client${client[0].id}`, { public: false });
+        console.log(data, error);
         return res.status(StatusCodes.OK).json({ client, error: errorClient });
       } else {
-        res
-          .status(StatusCodes.BAD_REQUEST)
-          .json({ client: [], error: { message: "no email/password/name/description/address provided for creating the user" } });
+        res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { message: "no data provided for creating the user" } });
       }
     } else {
       res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { message: "only POST method is accepted" } });
@@ -102,7 +102,7 @@ const deleteClient = async (req, res) => {
     if (user.isAdmin) {
       const { id } = req.params;
       if (id) {
-        const { data: clientSel, error: errorClientSel } = await supabase.from("clients").select("id,localuser_id,user_id").eq("id", id).single();
+        const { data: clientSel, error: errorClientSel } = await supabase.from("clients").select("id,email,localuser_id,user_id").eq("id", id).single();
         if (errorClientSel) {
           return res.status(StatusCodes.BAD_REQUEST).json({ client: clientSel, error: { ...errorClientSel, msg: "deleteClient,select client" } });
         }
@@ -118,6 +118,10 @@ const deleteClient = async (req, res) => {
         if (errorLocalUserDelete) {
           return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorLocalUserDelete, msg: "deleteClient,delete localusers" } });
         }
+        const { data: emptyBucket, error: errorEmptyBucket } = await supabase.storage.emptyBucket(`client${clientSel.id}`);
+        console.log(emptyBucket, errorEmptyBucket);
+        const { data, error } = await supabase.storage.deleteBucket(`client${clientSel.id}`);
+        console.log(data, error);
         const { data: deleteUser, error: errorDeleteUser } = await supabase.auth.api.deleteUser(clientSel.user_id);
         if (errorDeleteUser) return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorDeleteUser, msg: "deleteClient,deleteUser" } });
         return res.status(StatusCodes.OK).json({ client: clientSel, error: errorDeleteUser });

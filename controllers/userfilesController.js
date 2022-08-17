@@ -1,0 +1,111 @@
+import { supabase } from "../supabase/supabaseServer.js";
+import { StatusCodes } from "http-status-codes";
+
+const getOneFile = async (req, res) => {
+  const { id } = req.params;
+  if (id) {
+    const { data: event, error } = await supabase.from("events").select("*").eq("id", id).single();
+    if (error) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ event, error: { ...error, msg: "getOneEvent" } });
+    }
+    res.status(StatusCodes.OK).json({ event, error });
+  } else {
+    res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "no event id provided" } });
+  }
+};
+
+const getAllFiles = async (req, res) => {
+  const user = req.user;
+  let query = supabase
+    .from("files")
+    .select("id,client_id,file_name,file_description,user_id,displayed,bucketId,clients(name)", { count: "exact" })
+    .order("client_id", { ascending: true })
+    .order("file_name", { ascending: true });
+  if (!user.isAdmin) {
+    query = query.eq("user_id", user.id);
+  }
+  const { data: userfiles, error, count } = await query;
+  if (error) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ userfiles, error: { ...error, msg: "getAllFiles" }, count });
+  }
+  const { data: files, error: errorFiles } = await supabase.storage.from(`client${userfiles[0].client_id}`).list("", {
+    offset: 0,
+    sortBy: { column: "updated_at", order: "desc" },
+  });
+  console.log(files, errorFiles);
+  res.status(StatusCodes.OK).json({ userfiles, files, error, count });
+};
+
+const createFile = async (req, res) => {
+  if (req.method === "POST") {
+    const user = req.user;
+    if (user.isAdmin) {
+      const { client_id, ev_name, ev_description, ev_date } = req.body;
+      if (client_id && client_id !== "" && ev_name && ev_name !== "" && ev_description && ev_description !== "" && ev_date && ev_date !== "") {
+        const { data: client, error: errorClient } = await supabase.from("clients").select("user_id").eq("id", client_id).single();
+        if (errorClient) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { ...errorClient, msg: "createEvent, select client" } });
+        }
+        const { data: event, error } = await supabase.from("events").insert({
+          client_id,
+          ev_name,
+          ev_description,
+          ev_date,
+          user_id: client.user_id,
+        });
+        if (error) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ event, error: { ...error, msg: "createEvent,insert events" } });
+        }
+        return res.status(StatusCodes.OK).json({ event, error });
+      } else {
+        res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "no data provided for creating the event" } });
+      }
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "only POST method is accepted" } });
+    }
+  } else {
+    res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "only admin users allowed" } });
+  }
+};
+
+const editFile = async (req, res) => {
+  if (req.method === "PATCH") {
+    const user = req.user;
+    if (user.isAdmin) {
+      const { id, client_id, ev_name, ev_description, ev_date, user_id, displayed } = req.body;
+      const { data: event, error } = await supabase.from("events").update({ client_id, ev_name, ev_description, ev_date, user_id, displayed }).eq("id", id);
+      if (error) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ event, error: { ...error, msg: "editEvent,update events" } });
+      }
+      return res.status(StatusCodes.OK).json({ event, error });
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "only PATCH method is accepted" } });
+    }
+  } else {
+    res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "only admin users allowed" } });
+  }
+};
+
+const deleteFile = async (req, res) => {
+  if (req.method === "DELETE") {
+    const user = req.user;
+    if (user.isAdmin) {
+      const { id } = req.params;
+      if (id) {
+        const { data: event, error } = await supabase.from("events").delete().eq("id", id);
+        if (error) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ event, error: { ...error, msg: "deleteEvent,delete" } });
+        }
+        return res.status(StatusCodes.OK).json({ event, error });
+      } else {
+        res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "no event id provided" } });
+      }
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { msg: "only DELETE method is accepted" } });
+    }
+  } else {
+    res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "only admin users allowed" } });
+  }
+};
+
+export { getAllFiles, getOneFile, createFile, editFile, deleteFile };

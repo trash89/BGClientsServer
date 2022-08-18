@@ -10,7 +10,7 @@ const getOneClient = async (req, res) => {
     }
     res.status(StatusCodes.OK).json({ client, error });
   } else {
-    res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { message: "no id provided for getting the user" } });
+    res.status(StatusCodes.BAD_REQUEST).json({ client: {}, error: { message: "no id provided for getting the user" } });
   }
 };
 

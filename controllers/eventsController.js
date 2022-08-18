@@ -10,7 +10,7 @@ const getOneEvent = async (req, res) => {
     }
     res.status(StatusCodes.OK).json({ event, error });
   } else {
-    res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "no event id provided" } });
+    res.status(StatusCodes.BAD_REQUEST).json({ event: {}, error: { message: "no event id provided" } });
   }
 };
 

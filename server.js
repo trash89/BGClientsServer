@@ -26,6 +26,7 @@ import userfilesRouter from "./routes/userfilesRoutes.js";
 import notFoundMiddleware from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import authenticateUser from "./middleware/auth.js";
+
 const port = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== "production") {

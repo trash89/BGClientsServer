@@ -76,7 +76,7 @@ const getAllFiles = async (req, res) => {
       return res.status(StatusCodes.OK).json({ userfiles: data, error, count });
     });
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ userfiles, error: { ...error, msg: "getAllFiles" }, count });
+    return res.status(StatusCodes.OK).json({ userfiles, error, count });
   }
 };
 
@@ -84,31 +84,34 @@ const createFile = async (req, res) => {
   if (req.method === "POST") {
     const user = req.user;
     if (user.isAdmin) {
-      console.log("req.body=", req.body);
-      console.log("req.files=", req.files);
       const { client_id, file_name, file_description } = req.body;
-      if (client_id && client_id !== "" && file_name && file_name !== "" && file_description && file_description !== "") {
+      if (client_id && client_id !== "" && file_name && file_name !== "" && file_description && file_description !== "" && req.files && req.files.file) {
         const { data: client, error: errorClient } = await supabase.from("clients").select("user_id").eq("id", client_id).single();
         if (errorClient) {
           return res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { ...errorClient, msg: "createFile, select client" } });
         }
+        const uploadFile = req.files.file;
+        const { data: uploadedFile, error: errorUpload } = await supabase.storage.from(`client${client_id}`).upload(uploadFile.name, uploadFile.data, {
+          cacheControl: "604800",
+          upsert: false,
+          contentType: "application/pdf",
+        });
+        if (errorUpload) {
+          // if error on upload, try to remove
+          await supabase.storage.from(`client${client_id}`).remove([uploadFile.name]);
+          return res.status(StatusCodes.BAD_REQUEST).json({ file: [], error: { ...errorUpload, msg: "createFile,error on upload" } });
+        }
         const { data: file, error } = await supabase.from("files").insert({
           client_id,
-          file_name,
+          file_name: uploadFile.name,
           file_description,
           user_id: client.user_id,
         });
         if (error) {
+          // try to delete the file from the bucket
+          await supabase.storage.from(`client${client_id}`).remove([uploadFile.name]);
           return res.status(StatusCodes.BAD_REQUEST).json({ file, error: { ...error, msg: "createFile,insert files" } });
         }
-
-        const avatarFile = req.files.files;
-        const { data, error: errorUpl } = await supabase.storage.from(`client${client_id}`).upload(avatarFile.name, avatarFile, {
-          cacheControl: "360000000",
-          upsert: true,
-          contentType: "application/pdf",
-        });
-        console.log("upload=", data, errorUpl);
         return res.status(StatusCodes.OK).json({ file, error });
       } else {
         res.status(StatusCodes.BAD_REQUEST).json({ file: [], error: { message: "no data provided for creating the file" } });

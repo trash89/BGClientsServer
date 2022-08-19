@@ -5,6 +5,7 @@ dotenv.config();
 import cors from "cors";
 import "express-async-errors";
 import morgan from "morgan";
+import bodyParser from "body-parser";
 import fileupload from "express-fileupload";
 
 import { dirname } from "path";
@@ -67,7 +68,12 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, UPDATE, PUT, PATCH, OPTIONS");
   next();
 });
-
+app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 app.use(fileupload());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

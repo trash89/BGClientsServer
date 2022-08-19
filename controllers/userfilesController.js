@@ -1,5 +1,6 @@
 import { supabase } from "../supabase/supabaseServer.js";
 import { StatusCodes } from "http-status-codes";
+import { decode } from "base64-arraybuffer";
 
 const getOneFile = async (req, res) => {
   const { id } = req.params;
@@ -41,7 +42,7 @@ const getAllFiles = async (req, res) => {
   const user = req.user;
   let query = supabase
     .from("files")
-    .select("id,client_id,file_name,file_description,user_id,displayed,bucketId,clients(name)", { count: "exact" })
+    .select("id,client_id,file_name,file_description,user_id,displayed,clients(name)", { count: "exact" })
     .order("client_id", { ascending: true })
     .order("file_name", { ascending: true });
   if (!user.isAdmin) {
@@ -62,18 +63,13 @@ const getAllFiles = async (req, res) => {
       if (errorStorageFiles) {
         return res.status(StatusCodes.BAD_REQUEST).json({ userfiles, error: { ...errorStorageFiles, msg: "getAllFiles, storage.list" }, count });
       }
-      const { signedURL, error: errorSignedURL } = await supabase.storage.from(`client${file.client_id}`).createSignedUrl(file.file_name, 60);
-      if (errorSignedURL) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ userfiles, error: { ...errorSignedURL, msg: "getAllFiles,storage.createSignedURL" }, count });
-      }
       return {
         ...file,
-        updated_at: storageFiles[0].updated_at,
-        created_at: storageFiles[0].created_at,
-        last_accessed_at: storageFiles[0].last_accessed_at,
-        size: storageFiles[0].metadata.size,
-        mimetype: storageFiles[0].metadata.mimetype,
-        signedURL,
+        updated_at: storageFiles[0]?.updated_at,
+        created_at: storageFiles[0]?.created_at,
+        last_accessed_at: storageFiles[0]?.last_accessed_at,
+        size: storageFiles[0]?.metadata.size,
+        mimetype: storageFiles[0]?.metadata.mimetype,
       };
     });
     Promise.all(detailsUserFiles).then((data) => {
@@ -88,31 +84,40 @@ const createFile = async (req, res) => {
   if (req.method === "POST") {
     const user = req.user;
     if (user.isAdmin) {
+      console.log("req.body=", req.body);
+      console.log("req.files=", req.files);
       const { client_id, file_name, file_description } = req.body;
       if (client_id && client_id !== "" && file_name && file_name !== "" && file_description && file_description !== "") {
         const { data: client, error: errorClient } = await supabase.from("clients").select("user_id").eq("id", client_id).single();
         if (errorClient) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { ...errorClient, msg: "createEvent, select client" } });
+          return res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { ...errorClient, msg: "createFile, select client" } });
         }
-        const { data: event, error } = await supabase.from("events").insert({
+        const { data: file, error } = await supabase.from("files").insert({
           client_id,
-          ev_name,
-          ev_description,
-          ev_date,
+          file_name,
+          file_description,
           user_id: client.user_id,
         });
         if (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ event, error: { ...error, msg: "createEvent,insert events" } });
+          return res.status(StatusCodes.BAD_REQUEST).json({ file, error: { ...error, msg: "createFile,insert files" } });
         }
-        return res.status(StatusCodes.OK).json({ event, error });
+
+        const avatarFile = req.files.files;
+        const { data, error: errorUpl } = await supabase.storage.from(`client${client_id}`).upload(avatarFile.name, avatarFile, {
+          cacheControl: "360000000",
+          upsert: true,
+          contentType: "application/pdf",
+        });
+        console.log("upload=", data, errorUpl);
+        return res.status(StatusCodes.OK).json({ file, error });
       } else {
-        res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "no data provided for creating the event" } });
+        res.status(StatusCodes.BAD_REQUEST).json({ file: [], error: { message: "no data provided for creating the file" } });
       }
     } else {
-      res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "only POST method is accepted" } });
+      res.status(StatusCodes.BAD_REQUEST).json({ file: [], error: { message: "only POST method is accepted" } });
     }
   } else {
-    res.status(StatusCodes.BAD_REQUEST).json({ event: [], error: { message: "only admin users allowed" } });
+    res.status(StatusCodes.BAD_REQUEST).json({ file: [], error: { message: "only admin users allowed" } });
   }
 };
 
@@ -140,7 +145,7 @@ const deleteFile = async (req, res) => {
     if (user.isAdmin) {
       const { id } = req.params;
       if (id) {
-        const { data: event, error } = await supabase.from("events").delete().eq("id", id);
+        const { data: event, error } = await supabase.from("files").delete().eq("id", id);
         if (error) {
           return res.status(StatusCodes.BAD_REQUEST).json({ event, error: { ...error, msg: "deleteEvent,delete" } });
         }

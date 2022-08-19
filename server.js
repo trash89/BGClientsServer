@@ -5,6 +5,7 @@ dotenv.config();
 import cors from "cors";
 import "express-async-errors";
 import morgan from "morgan";
+import fileupload from "express-fileupload";
 
 import { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -67,6 +68,8 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(fileupload());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(helmet());
 app.use(xss());

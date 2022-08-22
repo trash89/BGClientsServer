@@ -12,7 +12,6 @@ const getOneFile = async (req, res) => {
     if (userfile) {
       const { data: storageFile, error: errorStorageFile } = await supabase.storage.from(`client${userfile.client_id}`).list("", {
         offset: 0,
-        sortBy: { column: "updated_at", order: "desc" },
         search: userfile.file_name,
       });
       if (errorStorageFile) {

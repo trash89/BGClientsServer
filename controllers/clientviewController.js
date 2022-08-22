@@ -10,12 +10,22 @@ const getClientView = async (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).json({ client, events: [], userfiles: [], error: { ...errorClient, msg: "getClientView, clients" } });
     }
 
-    const { data: events, error: errorEvents } = await supabase.from("events").select("*").eq("client_id", client.id);
+    const { data: events, error: errorEvents } = await supabase
+      .from("events")
+      .select("*")
+      .eq("client_id", client.id)
+      .eq("displayed", true)
+      .order("ev_date", { ascending: false });
     if (errorEvents) {
       return res.status(StatusCodes.BAD_REQUEST).json({ client, events, userfiles: [], error: { ...errorEvents, msg: "getClientView, events" } });
     }
 
-    const { data: userfiles, error: errorUserfiles } = await supabase.from("files").select("*").eq("client_id", client.id);
+    const { data: userfiles, error: errorUserfiles } = await supabase
+      .from("files")
+      .select("*")
+      .eq("client_id", client.id)
+      .eq("displayed", true)
+      .order("id", { ascending: false });
     if (errorUserfiles) {
       return res.status(StatusCodes.BAD_REQUEST).json({ client, events, userfiles, error: { ...errorUserfiles, msg: "getClientView, files" } });
     }
@@ -23,7 +33,6 @@ const getClientView = async (req, res) => {
       const detailsUserFiles = userfiles.map(async (file) => {
         const { data: storageFiles, error: errorStorageFiles } = await supabase.storage.from(`client${file.client_id}`).list("", {
           offset: 0,
-          sortBy: { column: "updated_at", order: "desc" },
           search: file.file_name,
         });
         if (errorStorageFiles) {
@@ -32,6 +41,7 @@ const getClientView = async (req, res) => {
             .json({ client, events, userfiles, error: { ...errorStorageFiles, msg: "getClientView, storage.list" }, count });
         }
         const { signedURL, error: errorSignedURL } = await supabase.storage.from(`client${file.client_id}`).createSignedUrl(file.file_name, expiresIn);
+
         if (errorSignedURL) {
           return res
             .status(StatusCodes.BAD_REQUEST)

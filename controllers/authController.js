@@ -1,6 +1,5 @@
 import { supabase } from "../supabase/supabaseServer.js";
 import { StatusCodes } from "http-status-codes";
-import { BadRequestError, UnAuthenticatedError } from "../errors/index.js";
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -8,10 +7,7 @@ const login = async (req, res) => {
     res.status(StatusCodes.UNAUTHORIZED).json({ error: { message: "Please provide all values" } });
   }
   const { user, session, error } = await supabase.auth.signIn({ email, password });
-  if (!user) {
-    res.status(StatusCodes.UNAUTHORIZED).json({ error });
-  }
-  if (error) {
+  if (!user || error) {
     res.status(StatusCodes.UNAUTHORIZED).json({ error });
   }
   const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").select("isAdmin").eq("user_id", user.id).single();

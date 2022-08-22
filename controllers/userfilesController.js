@@ -18,6 +18,7 @@ const getOneFile = async (req, res) => {
       if (errorStorageFile) {
         return res.status(StatusCodes.BAD_REQUEST).json({ userfile, error: { ...errorStorageFile, msg: "getOneFiles, storage.list" } });
       }
+      console.log(storageFile);
       const { signedURL, error: errorSignedURL } = await supabase.storage.from(`client${userfile.client_id}`).createSignedUrl(userfile.file_name, expiresIn);
       if (errorSignedURL) {
         return res.status(StatusCodes.BAD_REQUEST).json({ userfile, error: { ...errorSignedURL, msg: "getOneFile,storage.createSignedURL" } });

@@ -4,15 +4,15 @@ import { StatusCodes } from "http-status-codes";
 const login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.status(StatusCodes.UNAUTHORIZED).json({ error: { message: "Please provide all values" } });
+    return res.status(StatusCodes.UNAUTHORIZED).json({ error: { message: "Please provide all values" } });
   }
   const { user, session, error } = await supabase.auth.signIn({ email, password });
   if (!user || error) {
-    res.status(StatusCodes.UNAUTHORIZED).json({ error });
+    return res.status(StatusCodes.UNAUTHORIZED).json({ error });
   }
   const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").select("isAdmin").eq("user_id", user.id).single();
   if (errorLocalUser) {
-    res.status(StatusCodes.UNAUTHORIZED).json({ error: errorLocalUser });
+    return res.status(StatusCodes.UNAUTHORIZED).json({ error: errorLocalUser });
   }
   res.cookie("sb-access-token", session.access_token, {
     path: "/",
@@ -32,7 +32,7 @@ const login = async (req, res) => {
     domain: "https://bg-clients.vercel.app",
     httpOnly: true,
   });
-  res.status(StatusCodes.OK).json({ user: { ...user, isAdmin: localUser.isAdmin }, session });
+  return res.status(StatusCodes.OK).json({ user: { ...user, isAdmin: localUser.isAdmin }, session });
 };
 
 export {

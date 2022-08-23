@@ -1,7 +1,6 @@
 import { supabase } from "../supabase/supabaseServer.js";
 import { StatusCodes } from "http-status-codes";
 const expiresIn = 60 * 60 * 6; /// 6 hours
-import { URL } from "node:url";
 
 const getOneFile = async (req, res) => {
   const { id } = req.params;
@@ -12,7 +11,6 @@ const getOneFile = async (req, res) => {
     }
     if (userfile) {
       const { data: storageFile, error: errorStorageFile } = await supabase.storage.from(`client${userfile.client_id}`).list("", {
-        offset: 0,
         search: userfile.file_name,
       });
       if (errorStorageFile) {
@@ -29,11 +27,11 @@ const getOneFile = async (req, res) => {
       }
       const obj = {
         ...userfile,
-        updated_at: storageFile[0].updated_at,
-        created_at: storageFile[0].created_at,
-        last_accessed_at: storageFile[0].last_accessed_at,
-        size: (storageFile[0]?.metadata.size / 1024 / 1024).toFixed(2),
-        mimetype: storageFile[0].metadata.mimetype,
+        updated_at: storageFile[0]?.updated_at,
+        created_at: storageFile[0]?.created_at,
+        last_accessed_at: storageFile[0]?.last_accessed_at,
+        size: (storageFile[0]?.metadata?.size / 1024 / 1024).toFixed(2),
+        mimetype: storageFile[0]?.metadata?.mimetype,
         signedURL: publicURL,
       };
 
@@ -62,8 +60,6 @@ const getAllFiles = async (req, res) => {
   if (count > 0) {
     const detailsUserFiles = userfiles.map(async (file) => {
       const { data: storageFiles, error: errorStorageFiles } = await supabase.storage.from(`client${file.client_id}`).list("", {
-        offset: 0,
-        sortBy: { column: "updated_at", order: "desc" },
         search: file.file_name,
       });
       if (errorStorageFiles) {

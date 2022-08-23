@@ -55,7 +55,7 @@ const createClient = async (req, res) => {
         if (errorClient) {
           return res.status(StatusCodes.BAD_REQUEST).json({ client, error: { ...errorClient, msg: "createClient,insert clients" } });
         }
-        const { data, error } = await supabase.storage.createBucket(`client${client[0].id}`, { public: false });
+        const { data, error } = await supabase.storage.createBucket(`client${client[0].id}`, { public: true });
         if (error) {
           return res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { ...error, msg: "createClient,create bucket" } });
         }

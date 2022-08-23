@@ -1,6 +1,7 @@
 import { supabase } from "../supabase/supabaseServer.js";
 import { StatusCodes } from "http-status-codes";
 const expiresIn = 60 * 60 * 6; /// 6 hours
+import { URL } from "node:url";
 
 const getOneFile = async (req, res) => {
   const { id } = req.params;
@@ -17,10 +18,14 @@ const getOneFile = async (req, res) => {
       if (errorStorageFile) {
         return res.status(StatusCodes.BAD_REQUEST).json({ userfile, error: { ...errorStorageFile, msg: "getOneFiles, storage.list" } });
       }
-      console.log(storageFile);
-      const { signedURL, error: errorSignedURL } = await supabase.storage.from(`client${userfile.client_id}`).createSignedUrl(userfile.file_name, expiresIn);
-      if (errorSignedURL) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ userfile, error: { ...errorSignedURL, msg: "getOneFile,storage.createSignedURL" } });
+
+      // const { signedURL, error: errorSignedURL } = await supabase.storage.from(`client${userfile.client_id}`).createSignedUrl(userfile.file_name, expiresIn);
+      // if (errorSignedURL) {
+      //   return res.status(StatusCodes.BAD_REQUEST).json({ userfile, error: { ...errorSignedURL, msg: "getOneFile,storage.createSignedURL" } });
+      // }
+      const { publicURL, error: errorPublicURL } = await supabase.storage.from(`client${userfile.client_id}`).getPublicUrl(userfile.file_name, expiresIn);
+      if (errorPublicURL) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ userfile, error: { ...errorPublicURL, msg: "getOneFile,storage.getPublicURL" } });
       }
       const obj = {
         ...userfile,
@@ -29,8 +34,9 @@ const getOneFile = async (req, res) => {
         last_accessed_at: storageFile[0].last_accessed_at,
         size: (storageFile[0]?.metadata.size / 1024 / 1024).toFixed(2),
         mimetype: storageFile[0].metadata.mimetype,
-        signedURL,
+        signedURL: publicURL,
       };
+
       res.status(StatusCodes.OK).json({ userfile: obj, error });
     }
   } else {

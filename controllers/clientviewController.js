@@ -38,13 +38,13 @@ const getClientView = async (req, res) => {
                   .status(StatusCodes.BAD_REQUEST)
                   .json({ client, events, userfiles, error: { ...errorStorageFiles, msg: "getClientView, storage.list" }, count });
               } else {
-                const { signedURL, error: errorSignedURL } = await supabase.storage
+                const { publicURL: signedURL, error: errorSignedURL } = await supabase.storage
                   .from(`client${file.client_id}`)
-                  .createSignedUrl(storageFiles[0].name, expiresIn);
+                  .getPublicUrl(storageFiles[0].name, expiresIn);
                 if (errorSignedURL) {
                   return res
                     .status(StatusCodes.BAD_REQUEST)
-                    .json({ client, events, userfiles, error: { ...errorSignedURL, msg: "getClientView, storage.createSignedURL" } });
+                    .json({ client, events, userfiles, error: { ...errorSignedURL, msg: "getClientView, storage.getPublicURL" } });
                 } else {
                   return {
                     ...file,

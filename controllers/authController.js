@@ -36,5 +36,8 @@ const login = async (req, res) => {
     return res.status(StatusCodes.UNAUTHORIZED).json({ error });
   }
 };
-
-export { login };
+const verify = async (req, res) => {
+  console.log(req);
+  return res.status(StatusCodes.OK).json({ message: "verify" });
+};
+export { login, verify };

@@ -1,6 +1,78 @@
 import { supabase } from "../supabase/supabaseServer.js";
 import { StatusCodes } from "http-status-codes";
 
+const resetClient = async (req, res) => {
+  if (req.method === "PUT") {
+    const { id } = req.params;
+    const { password, email } = req.body;
+    const user = req.user;
+    if (id && password && password !== "") {
+      // reset the password
+      try {
+        let query = supabase.from("clients").select("*").eq("id", parseInt(id));
+        if (!user.isAdmin) {
+          query = query.eq("user_id", user.id);
+        }
+        query = query.single();
+        const { data: client, error } = await query;
+        if (error) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,clients" } });
+        }
+        try {
+          const { data: user, error: errorUser } = await supabase.auth.api.updateUserById(client.user_id, { password });
+          if (errorUser) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUser, msg: "resetClient,updateUserById" } });
+          }
+          return res.status(StatusCodes.OK).json({ client, error });
+        } catch (error) {
+          console.log(error);
+          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        }
+      } catch (error) {
+        console.log(error);
+        return res.status(StatusCodes.BAD_REQUEST).json({ error });
+      }
+    } else {
+      // send reset link to user
+      if (id && email && email !== "") {
+        try {
+          let query = supabase.from("clients").select("*").eq("id", parseInt(id));
+          if (!user.isAdmin) {
+            query = query.eq("user_id", user.id);
+          }
+          query = query.single();
+          const { data: client, error } = await query;
+          if (error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,clients" } });
+          }
+          if (email === client.email) {
+            try {
+              const { error } = await supabase.auth.api.resetPasswordForEmail(client.email);
+              if (error) {
+                console.log(error);
+                return res.status(StatusCodes.BAD_REQUEST).json({ error });
+              }
+              return res.status(StatusCodes.OK).json({ client, error });
+            } catch (error) {
+              console.log(error);
+              return res.status(StatusCodes.BAD_REQUEST).json({ error });
+            }
+          } else {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,invalid email" } });
+          }
+        } catch (error) {
+          console.log(error);
+          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        }
+      } else {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided" } });
+      }
+    }
+  } else {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only PUT method is accepted" } });
+  }
+};
+
 const getOneClient = async (req, res) => {
   const { id } = req.params;
   const user = req.user;
@@ -27,6 +99,7 @@ const getOneClient = async (req, res) => {
 
 const getAllClients = async (req, res) => {
   const user = req.user;
+  //console.log(req);
   try {
     let query = supabase.from("clients").select("*", { count: "exact" }).order("name", { ascending: true });
     if (!user.isAdmin) {
@@ -280,4 +353,4 @@ const deleteClient = async (req, res) => {
   }
 };
 
-export { getAllClients, getOneClient, createClient, editClient, deleteClient };
+export { getAllClients, getOneClient, createClient, editClient, deleteClient, resetClient };

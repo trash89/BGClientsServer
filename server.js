@@ -89,9 +89,9 @@ app.use("/api/v1/events", authenticateUser, eventsRouter);
 app.use("/api/v1/userfiles", authenticateUser, userfilesRouter);
 app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
 
-app.get("/", (req, res) => {
-  res.send("<body><div><strong>BGClients API REST server</strong></div><div>Please authenticate first on /api/v1/auth/login !</div></body>");
-});
+// app.get("/", (req, res) => {
+//   res.send("<body><div><strong>BGClients API REST server</strong></div><div>Please authenticate first on /api/v1/auth/login !</div></body>");
+// });
 
 // only when ready to deploy
 app.get("*", (req, res) => {

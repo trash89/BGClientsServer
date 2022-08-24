@@ -4,31 +4,37 @@ const expiresIn = 60 * 60 * 6; /// 6 hours
 
 const getClientView = async (req, res) => {
   const { id, email } = req.body;
-  if (id) {
+  const user = req.user;
+  //console.log(user);
+  if (id && email) {
     try {
-      const { data: client, error: errorClient } = await supabase.from("clients").select("*").eq("user_id", id).single();
+      let query = supabase.from("clients").select("*").eq("user_id", id);
+      if (!user.isAdmin) {
+        query = query.eq("user_id", user.id);
+      }
+      query = query.single();
+      const { data: client, error: errorClient } = await query;
       if (errorClient || email != client.email) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ client, events: [], userfiles: [], error: { ...errorClient, msg: "getClientView, clients" } });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorClient, msg: "getClientView, clients" } });
       }
       try {
-        const { data: events, error: errorEvents } = await supabase
-          .from("events")
-          .select("*")
-          .eq("client_id", client.id)
-          .eq("displayed", true)
-          .order("ev_date", { ascending: false });
+        let query = supabase.from("events").select("*").eq("client_id", client.id).eq("displayed", true).order("ev_date", { ascending: false });
+        if (!user.isAdmin) {
+          query = query.eq("user_id", user.id);
+        }
+        const { data: events, error: errorEvents } = await query;
         if (errorEvents) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ client, events, userfiles: [], error: { ...errorEvents, msg: "getClientView, events" } });
+          return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEvents, msg: "getClientView, events" } });
         }
         try {
-          const { data: userfiles, error: errorUserfiles } = await supabase
-            .from("files")
-            .select("*")
-            .eq("client_id", client.id)
-            .eq("displayed", true)
-            .order("id", { ascending: false });
+          let query = supabase.from("files").select("*").eq("client_id", client.id).eq("displayed", true).order("id", { ascending: false });
+          if (!user.isAdmin) {
+            query = query.eq("user_id", user.id);
+          }
+
+          const { data: userfiles, error: errorUserfiles } = await query;
           if (errorUserfiles) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ client, events, userfiles, error: { ...errorUserfiles, msg: "getClientView, files" } });
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUserfiles, msg: "getClientView, files" } });
           }
           const iterator = userfiles.values();
           const detailsUserFiles = [];
@@ -38,15 +44,11 @@ const getClientView = async (req, res) => {
                 search: key.file_name,
               });
               if (errorStorageFiles) {
-                return res
-                  .status(StatusCodes.BAD_REQUEST)
-                  .json({ client, events, userfiles, error: { ...errorStorageFiles, msg: "getClientView, storage.list" } });
+                return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorStorageFiles, msg: "getClientView, storage.list" } });
               }
               const { publicURL: signedURL, error: errorSignedURL } = supabase.storage.from(`client${key.client_id}`).getPublicUrl(key.file_name, expiresIn);
               if (errorSignedURL) {
-                return res
-                  .status(StatusCodes.BAD_REQUEST)
-                  .json({ client, events, userfiles, error: { ...errorSignedURL, msg: "getClientView, storage.getPublicURL" } });
+                return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorSignedURL, msg: "getClientView, storage.getPublicURL" } });
               }
               const obj = {
                 ...key,
@@ -60,20 +62,24 @@ const getClientView = async (req, res) => {
               detailsUserFiles.push(obj);
             } catch (error) {
               console.log(error);
+              return res.status(StatusCodes.BAD_REQUEST).json({ error });
             }
           }
           return res.status(StatusCodes.OK).json({ client, events, userfiles: detailsUserFiles, error: errorUserfiles });
         } catch (error) {
           console.log(error);
+          return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } catch (error) {
         console.log(error);
+        return res.status(StatusCodes.BAD_REQUEST).json({ error });
       }
     } catch (error) {
       console.log(error);
+      return res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
   } else {
-    res.status(StatusCodes.BAD_REQUEST).json({ client: {}, events: [], userfiles: [], error: { message: "no id provided" } });
+    res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no id provided" } });
   }
 };
 

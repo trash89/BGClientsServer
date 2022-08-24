@@ -60,14 +60,15 @@ app.options(
     origin: [origin],
     credentials: true,
     optionsSuccessStatus: 200,
-    methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
+    methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS", "HEAD", "CONNECT", "TRACE"],
   })
 );
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", origin);
   res.header("Access-Control-Allow-Credentials", true);
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, UPDATE, PUT, PATCH, OPTIONS");
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, UPDATE, PUT, PATCH, OPTIONS, HEAD, CONNECT, TRACE");
+  res.header("Allow", "GET, POST, DELETE, UPDATE, PUT, PATCH, OPTIONS, HEAD, CONNECT, TRACE");
   next();
 });
 app.use(bodyParser.json());

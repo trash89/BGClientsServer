@@ -95,7 +95,7 @@ app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
 
 // only when ready to deploy
 app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./client/build", "index.html"));
+  res.sendFile(path.resolve(__dirname, "./build", "index.html"));
 });
 
 app.use(notFoundMiddleware);

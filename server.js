@@ -41,7 +41,7 @@ app.use(express.static(path.resolve(__dirname, "./build")));
 
 app.set("trust proxy", 1);
 
-let origin = "https://bg-clients.vercel.app";
+let origin = "https://bgclients.herokuapp.com";
 if (process.env.NODE_ENV !== "production") {
   origin = "http://localhost:3000";
 }
@@ -51,7 +51,7 @@ app.use(
     origin: [origin],
     credentials: true,
     optionsSuccessStatus: 200,
-    methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
+    methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS", "HEAD", "CONNECT", "TRACE"],
   })
 );
 app.options(
@@ -78,7 +78,6 @@ app.use(
   })
 );
 app.use(fileupload());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(helmet());
 app.use(xss());
@@ -89,10 +88,6 @@ app.use("/api/v1/clients", authenticateUser, clientsRouter);
 app.use("/api/v1/events", authenticateUser, eventsRouter);
 app.use("/api/v1/userfiles", authenticateUser, userfilesRouter);
 app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
-
-// app.get("/", (req, res) => {
-//   res.send("<body><div><strong>BGClients API REST server</strong></div><div>Please authenticate first on /api/v1/auth/login !</div></body>");
-// });
 
 // only when ready to deploy
 app.get("*", (req, res) => {

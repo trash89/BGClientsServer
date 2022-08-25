@@ -1,14 +1,19 @@
 {
-  "name": "bgclientserver",
+  "name": "bgclients",
   "version": "1.0.0",
-  "description": "#### BG Clients API REST Server",
-  "main": "index.js",
+  "description": "#### BG Clients",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "install-server": "npm install",
     "install-dependencies": "npm run install-server ",
+    "install-all": "npm run install-server && npm run install-client",
+    "build-client": "cd client && npm run build",
+    "install-client": "cd client && npm install",
+    "heroku-postbuild": "npm run install-client && npm run build-client",
     "server": "nodemon server --ignore client",
-    "start": "concurrently --kill-others-on-fail \" npm run server\" "
+    "client": "npm start --prefix client",
+    "start": "concurrently --kill-others-on-fail \" npm run server\" \" npm run client\""
   },
   "keywords": [],
   "author": "",

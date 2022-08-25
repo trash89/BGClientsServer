@@ -49,6 +49,11 @@ export default function Register() {
     await login(email, password);
   };
 
+  const handleDemo = async (e) => {
+    e.preventDefault();
+    await login("demo@demo.com", "secret123");
+  };
+
   const handleChange = async (e) => {
     dispatch(setInput({ name: e.target.name, value: e.target.value }));
     if (isError) dispatch(clearError());
@@ -92,6 +97,9 @@ export default function Register() {
               onClick={handleLogin}
             >
               {isLoading ? "loading..." : "connect"}
+            </button>
+            <button type="button" className="btn btn-primary text-capitalize flex-fill m-1" disabled={isLoading} onClick={handleDemo}>
+              {isLoading ? "loading..." : "demo"}
             </button>
           </div>
           {isError && <p className="text-center text-danger">{errorText}</p>}

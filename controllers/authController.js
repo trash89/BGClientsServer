@@ -37,7 +37,6 @@ const login = async (req, res) => {
   }
 };
 const verify = async (req, res) => {
-  console.log(req);
   return res.status(StatusCodes.OK).json({ message: "verify" });
 };
 export { login, verify };

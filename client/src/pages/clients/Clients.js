@@ -92,6 +92,7 @@ const Clients = () => {
           </tbody>
         </table>
       </div>
+      <br />
     </div>
   );
 };

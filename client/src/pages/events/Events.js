@@ -98,6 +98,7 @@ const Events = () => {
           </tbody>
         </table>
       </div>
+      <br />
     </div>
   );
 };

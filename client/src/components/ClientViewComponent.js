@@ -130,6 +130,7 @@ const ClientViewComponent = ({ user }) => {
           <></>
         )}
       </div>
+      <br />
     </section>
   );
 };

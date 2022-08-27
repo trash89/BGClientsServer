@@ -133,6 +133,7 @@ const NewClient = () => {
         </button>
         {isError && <p className="text-danger">{errorText}</p>}
       </form>
+      <br />
     </section>
   );
 };

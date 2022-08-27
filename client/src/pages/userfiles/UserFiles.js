@@ -82,6 +82,7 @@ const UserFiles = () => {
           </tbody>
         </table>
       </div>
+      <br />
     </div>
   );
 };

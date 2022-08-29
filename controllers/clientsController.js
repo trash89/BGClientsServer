@@ -83,11 +83,44 @@ const getOneClient = async (req, res) => {
         query = query.eq("user_id", user.id);
       }
       query = query.single();
-      const { data: client, error } = await query;
-      if (error) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "getOneClient" } });
+      const { data: client, error: errorClient } = await query;
+      if (errorClient) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorClient, msg: "getOneClient" } });
       }
-      return res.status(StatusCodes.OK).json({ client, error });
+      try {
+        let query = supabase
+          .from("events")
+          .select("*", { count: "exact" })
+          .eq("client_id", client.id)
+          .order("ev_date", { ascending: true })
+          .order("ev_name", { ascending: true });
+        if (!user.isAdmin) {
+          query = query.eq("user_id", user.id);
+        }
+        const { data: events, error: errorEvents, count: countEvents } = await query;
+        if (errorEvents) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEvents, msg: "getOneClient, events" } });
+        }
+        try {
+          let query = supabase.from("files").select("*", { count: "exact" }).eq("client_id", client.id).order("file_name", { ascending: true });
+          if (!user.isAdmin) {
+            query = query.eq("user_id", user.id);
+          }
+          const { data: userfiles, error: errorUserfiles, count: countUserfiles } = await query;
+          if (errorUserfiles) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUserfiles, msg: "getOneClient, userfiles" } });
+          }
+          return res
+            .status(StatusCodes.OK)
+            .json({ client, events: { events, count: countEvents }, userfiles: { userfiles, count: countUserfiles }, errorClient });
+        } catch (error) {
+          console.log(error);
+          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        }
+      } catch (error) {
+        console.log(error);
+        return res.status(StatusCodes.BAD_REQUEST).json({ error });
+      }
     } catch (error) {
       console.log(error);
       return res.status(StatusCodes.BAD_REQUEST).json({ error });

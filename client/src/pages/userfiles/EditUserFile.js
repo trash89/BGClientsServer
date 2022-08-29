@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { axiosInstance } from "../../axiosInstance";
 import { useSelector, useDispatch } from "react-redux";
 import { useIsMounted } from "../../hooks";
@@ -24,13 +24,16 @@ const EditUserFile = () => {
   const { user } = useSelector((store) => store.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const { from } = location.state;
+
   const params = useParams();
   const { input, data, isLoading, isEditing, isError, errorText } = useSelector((store) => store.userfile);
   const [myFile, setMyFile] = useState(null);
 
   useEffect(() => {
     if (!user.isAdmin) {
-      navigate("/userfiles", { replace: true });
+      navigate(from, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -86,7 +89,7 @@ const EditUserFile = () => {
   const handleCancel = async (e) => {
     e.preventDefault();
     dispatch(clearValues());
-    navigate("/userfiles", { replace: true });
+    navigate(from, { replace: true });
   };
 
   const handleDelete = async (e) => {
@@ -96,7 +99,7 @@ const EditUserFile = () => {
       const resp = await axiosInstance.delete(`/userfiles/${params.idFile}`);
       const file_name = resp?.data?.userfile[0]?.file_name;
       toast.success(`Successfully deteled file ${file_name}`);
-      navigate("/userfiles", { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       console.log(error);
       dispatch(setError(error?.response?.data?.error?.message || error?.message));
@@ -122,7 +125,7 @@ const EditUserFile = () => {
       });
       const file_name = resp?.data?.userfile[0]?.file_name;
       toast.success(`Successfully saved file ${file_name}`);
-      navigate("/userfiles", { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       console.log(error);
       dispatch(setError(error?.response?.data?.error?.message || error?.message));

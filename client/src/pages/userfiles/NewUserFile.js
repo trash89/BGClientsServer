@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { useIsMounted } from "../../hooks";
 import { Progress } from "../../components";
@@ -21,6 +21,8 @@ import { toast } from "react-toastify";
 const NewUserFile = () => {
   const isMounted = useIsMounted();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { from } = location.state;
   const dispatch = useDispatch();
   const { user } = useSelector((store) => store.user);
   const { input, data, isLoading, isEditing, isError, errorText } = useSelector((store) => store.userfile);
@@ -34,12 +36,12 @@ const NewUserFile = () => {
   const handleCancel = async (e) => {
     e.preventDefault();
     dispatch(clearValues());
-    navigate("/userfiles", { replace: true });
+    navigate(from, { replace: true });
   };
 
   useEffect(() => {
     if (!user.isAdmin) {
-      navigate("/userfiles", { replace: true });
+      navigate(from, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -75,7 +77,7 @@ const NewUserFile = () => {
       const resp = await axiosInstance.post("/userfiles", formData, { headers: { "Content-Type": `multipart/form-data; boundary=${formData._boundary}` } });
       const file_name = resp?.data?.file[0]?.file_name;
       toast.success(`Successfully saved file ${file_name}`);
-      navigate("/userfiles", { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       console.log(error);
       dispatch(setError(error?.response?.data?.error?.message || error?.message));

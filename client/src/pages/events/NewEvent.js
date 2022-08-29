@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { useIsMounted } from "../../hooks";
 import { Progress } from "../../components";
@@ -22,6 +22,9 @@ import { toast } from "react-toastify";
 const NewEvent = () => {
   const isMounted = useIsMounted();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { from } = location.state;
+
   const dispatch = useDispatch();
   const { user } = useSelector((store) => store.user);
   const { input, data, isLoading, isEditing, isError, errorText } = useSelector((store) => store.event);
@@ -33,7 +36,7 @@ const NewEvent = () => {
 
   useEffect(() => {
     if (!user.isAdmin) {
-      navigate("/events", { replace: true });
+      navigate(from, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -61,7 +64,7 @@ const NewEvent = () => {
   const handleCancel = async (e) => {
     e.preventDefault();
     dispatch(clearValues());
-    navigate("/events", { replace: true });
+    navigate(from, { replace: true });
   };
 
   const handleSave = async (e) => {
@@ -76,7 +79,7 @@ const NewEvent = () => {
         ev_date: ev_date_formatted,
       });
       toast.success(`Successfully saved event ${input.ev_name}`);
-      navigate("/events", { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       console.log(error);
       dispatch(setError(error?.response?.data?.error?.message || error?.message));

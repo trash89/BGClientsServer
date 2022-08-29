@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { axiosInstance } from "../../axiosInstance";
 import { useSelector, useDispatch } from "react-redux";
 import { useIsMounted } from "../../hooks";
@@ -23,12 +23,14 @@ const EditEvent = () => {
   const { user } = useSelector((store) => store.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const { from } = location.state;
   const params = useParams();
   const { input, data, isLoading, isEditing, isError, errorText } = useSelector((store) => store.event);
 
   useEffect(() => {
     if (!user.isAdmin) {
-      navigate("/events", { replace: true });
+      navigate(from, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -75,7 +77,7 @@ const EditEvent = () => {
   const handleCancel = async (e) => {
     e.preventDefault();
     dispatch(clearValues());
-    navigate("/events", { replace: true });
+    navigate(from, { replace: true });
   };
 
   const handleDelete = async (e) => {
@@ -84,7 +86,7 @@ const EditEvent = () => {
       dispatch(setIsEditing());
       await axiosInstance.delete(`/events/${params.idEvent}`);
       dispatch(clearValues());
-      navigate("/events", { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       console.log(error);
       dispatch(setError(error?.response?.data?.error?.message || error?.message));
@@ -107,7 +109,7 @@ const EditEvent = () => {
         displayed: input.displayed,
       });
       toast.success(`Successfully saved event ${input.ev_name}`);
-      navigate("/events", { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       console.log(error);
       dispatch(setError(error?.response?.data?.error?.message || error?.message));

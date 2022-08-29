@@ -22,7 +22,13 @@ const NewUserFile = () => {
   const isMounted = useIsMounted();
   const navigate = useNavigate();
   const location = useLocation();
-  const { from } = location.state;
+  let from = "/userfiles";
+  let client_id = null;
+  if (location.state) {
+    from = location.state.from;
+    client_id = location.state.client_id;
+  } else from = "/userfiles";
+
   const dispatch = useDispatch();
   const { user } = useSelector((store) => store.user);
   const { input, data, isLoading, isEditing, isError, errorText } = useSelector((store) => store.userfile);
@@ -52,7 +58,9 @@ const NewUserFile = () => {
       try {
         const resp = await axiosInstance.get("/clients");
         dispatch(setData(resp.data));
-        if (resp?.data?.clients?.length > 0) {
+        if (client_id) {
+          dispatch(setInput({ ...input, name: "client_id", value: client_id }));
+        } else if (resp?.data?.clients?.length > 0) {
           dispatch(setInput({ ...input, name: "client_id", value: resp.data.clients[0].id }));
         }
       } catch (error) {

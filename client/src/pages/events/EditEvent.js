@@ -24,7 +24,11 @@ const EditEvent = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const { from } = location.state;
+  let from = "/events";
+  if (location.state) {
+    from = location.state.from;
+  } else from = "/events";
+
   const params = useParams();
   const { input, data, isLoading, isEditing, isError, errorText } = useSelector((store) => store.event);
 

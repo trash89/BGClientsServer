@@ -58,6 +58,7 @@ const Clients = () => {
   if (!user.isAdmin) {
     return <Navigate to="/clients/clientView" replace={true} />;
   }
+
   return (
     <div className="container p-2 my-2 border border-primary rounded-3">
       <TotalRows link="/clients/newClient" count={data.count} download={handleDownloadCsv} title="Clients list" />

@@ -25,7 +25,10 @@ const EditUserFile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const { from } = location.state;
+  let from = "/userfiles";
+  if (location.state) {
+    from = location.state.from;
+  } else from = "/userfiles";
 
   const params = useParams();
   const { input, data, isLoading, isEditing, isError, errorText } = useSelector((store) => store.userfile);

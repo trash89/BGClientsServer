@@ -303,7 +303,7 @@ const EditClient = () => {
             </div>
 
             <div className="col">
-              <TotalRows link="/userfiles/newFile" count={data?.userfiles?.count} title="Userfiles" state={{ from: location.pathname, client_id: input.id }} />
+              <TotalRows link="/userfiles/newFile" count={data?.userfiles?.count} title="Files" state={{ from: location.pathname, client_id: input.id }} />
               <ul className="list-group">
                 {data?.userfiles?.userfiles?.map((row) => {
                   return (

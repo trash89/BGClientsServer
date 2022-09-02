@@ -147,12 +147,12 @@ const EditUserFile = () => {
   if (user.isAdmin) {
     return (
       <section className="container p-2 my-2 border border-primary rounded-3">
-        <p className="h4 text-capitalize">edit a userfile</p>
+        <p className="h4 text-capitalize">edit a file</p>
         <div className="modal" id="deleteFile">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h4 className="modal-title">Deleting a Userfile</h4>
+                <h4 className="modal-title">Deleting a File</h4>
               </div>
               <div className="modal-body">Are you sure to delete the file {input.file_name} ?</div>
               <div className="modal-footer">

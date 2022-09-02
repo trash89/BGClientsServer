@@ -75,7 +75,7 @@ export default function Register() {
           <Logo />
           <p className="h4 text-center text-capitalize flex-grow-1">BG Clients</p>
         </div>
-        <form className="was-validated">
+        <form>
           <p className="h6 text-center text-capitalize pt-2">Login</p>
           <div className="mb-3 mt-3">
             <label htmlFor="email" className="form-label">
@@ -99,7 +99,7 @@ export default function Register() {
               {isLoading ? "loading..." : "connect"}
             </button>
             <button type="button" className="btn btn-primary text-capitalize flex-fill m-1" disabled={isLoading} onClick={handleDemo}>
-              {isLoading ? "loading..." : "demo"}
+              {isLoading ? "loading..." : "demo app"}
             </button>
           </div>
           {isError && <p className="text-center text-danger">{errorText}</p>}

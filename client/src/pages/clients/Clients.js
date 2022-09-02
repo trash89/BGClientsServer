@@ -71,8 +71,6 @@ const Clients = () => {
           );
         })}
       </ul>
-
-      <br />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useIsMounted } from "../../hooks";
 import { axiosInstance } from "../../axiosInstance";
@@ -56,7 +56,12 @@ const NewClient = () => {
 
   return (
     <section className="container p-2 my-2 border border-primary rounded-3">
-      <p className="h4 text-capitalize">enter a new client</p>
+      <p className="h4 text-capitalize">
+        enter a new client{" "}
+        <Link to={"/clients"}>
+          <i className="fa-solid fa-arrow-left" />
+        </Link>
+      </p>
       <form className="was-validated">
         <div className="row mb-3 mt-3">
           <div className="col">

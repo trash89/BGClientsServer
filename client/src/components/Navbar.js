@@ -30,7 +30,7 @@ export default function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse text-align-start" id="collapsibleNavbar">
-          <ul className="navbar-nav">
+          <ul className="navbar-nav align-content-start justify-content-sm-start justify-content-md-between flex-sm-grow-1">
             {user.isAdmin ? (
               <>
                 {links.map((page) => {
@@ -46,20 +46,20 @@ export default function Navbar() {
             ) : (
               <></>
             )}
-          </ul>
-          <ul className="nav align-content-start justify-content-sm-start justify-content-md-end flex-sm-grow-1">
-            <li className="nav-item dropdown m-0 p-0">
-              <a href="/" className="nav-link dropdown-toggle text-light" role="button" data-bs-toggle="dropdown">
-                {user?.email}
-              </a>
-              <ul className="dropdown-menu">
-                <li>
-                  <a href="/register" className="dropdown-item text-capitalize" onClick={logout}>
-                    logout
-                  </a>
-                </li>
-              </ul>
-            </li>
+            <div className="d-inline-flex m-0 p-0">
+              <li className="navbar-item dropdown">
+                <a href="/register" className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {user?.email}
+                </a>
+                <ul className="dropdown-menu">
+                  <li>
+                    <a href="/register" className="dropdown-item" onClick={logout}>
+                      Logout
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </div>
           </ul>
         </div>
       </div>

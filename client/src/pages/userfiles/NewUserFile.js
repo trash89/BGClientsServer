@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { useIsMounted } from "../../hooks";
 import { Progress } from "../../components";
@@ -98,7 +98,12 @@ const NewUserFile = () => {
 
   return (
     <section className="container p-2 my-2 border border-primary rounded-3">
-      <p className="h4 text-capitalize">enter a new file</p>
+      <p className="h4 text-capitalize">
+        enter a new file
+        <Link to={from}>
+          <i className="fa-solid fa-arrow-left" />
+        </Link>
+      </p>
       <form className="was-validated" encType="multipart/form-data">
         <div className="mb-3 mt-3">
           <label htmlFor="client_id" className="form-label">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { axiosInstance } from "../../axiosInstance";
 import { useSelector, useDispatch } from "react-redux";
 import { useIsMounted } from "../../hooks";
@@ -147,7 +147,12 @@ const EditUserFile = () => {
   if (user.isAdmin) {
     return (
       <section className="container p-2 my-2 border border-primary rounded-3">
-        <p className="h4 text-capitalize">edit a file</p>
+        <p className="h4 text-capitalize">
+          edit a file
+          <Link to={from}>
+            <i className="fa-solid fa-arrow-left" />
+          </Link>
+        </p>
         <div className="modal" id="deleteFile">
           <div className="modal-dialog">
             <div className="modal-content">

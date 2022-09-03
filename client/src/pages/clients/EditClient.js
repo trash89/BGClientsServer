@@ -138,7 +138,12 @@ const EditClient = () => {
   if (user.isAdmin) {
     return (
       <section className="container p-2 my-2 border border-primary rounded-3">
-        <p className="h4 text-capitalize">edit client</p>
+        <p className="h4 text-capitalize">
+          edit client
+          <Link to={"/clients"}>
+            <i className="fa-solid fa-arrow-left" />
+          </Link>
+        </p>
         <div className="modal" id="deleteClient">
           <div className="modal-dialog">
             <div className="modal-content">
@@ -290,7 +295,7 @@ const EditClient = () => {
                     <Link
                       to={`/events/${row.id}`}
                       state={{ from: location.pathname, client_id: input.id }}
-                      className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                      className="list-group-item btn btn-light btn-sm"
                       data-bs-toggle="tooltip"
                       title="Edit Event"
                       key={row.id}
@@ -301,7 +306,6 @@ const EditClient = () => {
                 })}
               </ul>
             </div>
-
             <div className="col">
               <TotalRows link="/userfiles/newFile" count={data?.userfiles?.count} title="Files" state={{ from: location.pathname, client_id: input.id }} />
               <ul className="list-group">
@@ -310,7 +314,7 @@ const EditClient = () => {
                     <Link
                       to={`/userfiles/${row.id}`}
                       state={{ from: location.pathname, client_id: input.id }}
-                      className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                      className="list-group-item btn btn-light btn-sm"
                       data-bs-toggle="tooltip"
                       title="Edit Userfile"
                       key={row.id}

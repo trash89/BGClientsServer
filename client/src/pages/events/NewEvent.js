@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { useIsMounted } from "../../hooks";
 import { Progress } from "../../components";
@@ -99,7 +99,12 @@ const NewEvent = () => {
 
   return (
     <section className="container p-2 my-2 border border-primary rounded-3">
-      <p className="h4 text-capitalize">enter a new event</p>
+      <p className="h4 text-capitalize">
+        enter a new event{" "}
+        <Link to={from}>
+          <i className="fa-solid fa-arrow-left" />
+        </Link>
+      </p>
       <form className="was-validated">
         <div className="form-floating mb-3 mt-3">
           <select className="form-select" id="client_id" name="client_id" value={input.client_id} onChange={handleChange} disabled={isEditing}>

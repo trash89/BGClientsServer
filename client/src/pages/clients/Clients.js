@@ -62,15 +62,15 @@ const Clients = () => {
   return (
     <div className="container p-2 my-2 border border-primary rounded-3">
       <TotalRows link="/clients/newClient" count={data.count} download={handleDownloadCsv} title="Clients list" />
-      <ul className="list-group">
+      <div className="list-group">
         {data?.clients?.map((row) => {
           return (
-            <Link to={`/clients/${row.id}`} className="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip" title="Edit Client" key={row.id}>
+            <Link to={`/clients/${row.id}`} className="list-group-item btn btn-light btn-sm" data-bs-toggle="tooltip" title="Edit Client" key={row.id}>
               {row.name}, {row.email}
             </Link>
           );
         })}
-      </ul>
+      </div>
     </div>
   );
 };

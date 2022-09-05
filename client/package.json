@@ -43,5 +43,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://bgclients.onrender.com"
+  "proxy": "https://bgclients.vercel.app"
 }

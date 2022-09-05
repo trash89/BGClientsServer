@@ -8,7 +8,7 @@ Once the application administrator creates a client, an user is created on Supab
 
 The administrator can enter events and files for clients. When a client connects, he can view his informations on his secured area and download his files.
 
-Live on Heroku platform : https://bgclients.herokuapp.com
+Live on Vercel platform : https://bgclients.vercel.app
 
 The application is built with three components:
 

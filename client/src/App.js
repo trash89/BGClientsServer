@@ -7,6 +7,7 @@ import {
   SharedPagesLayout,
   Error,
   Register,
+  PasswordReset,
   ProtectedRoute,
   Clients,
   EditClient,
@@ -52,6 +53,7 @@ function App() {
           </Route>
         </Route>
         <Route path="register" element={<Register />} />
+        <Route path="password-reset" element={<PasswordReset />} />
         <Route path="*" element={<Error />} />
       </Routes>
       <ToastContainer position="top-center" autoClose={3000} />

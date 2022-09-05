@@ -37,12 +37,11 @@ if (process.env.NODE_ENV !== "production") {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // only when ready to deploy
-
 app.use(express.static(path.resolve(__dirname, "./client/build")));
 
 app.set("trust proxy", 1);
 
-let origin = "https://bgclients.herokuapp.com";
+let origin = "https://bgclients.vercel.app";
 if (process.env.NODE_ENV !== "production") {
   origin = "http://localhost:3000";
 }

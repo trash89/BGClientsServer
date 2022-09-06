@@ -6,7 +6,9 @@ It allows the creation of a private secured area for clients in order to communi
 
 Once the application administrator creates a client, an user is created on Supabase with his email and a default password.
 
-The administrator can enter events and files for clients. When a client connects, he can view his informations on his secured area and download his files.
+The administrator can enter events and files for clients.
+
+When a client connects, he can view his informations on his secured area and download his files. He can also change his own password and the administrator can also reset his password to the default one.
 
 Live on Vercel platform : https://bgclients.vercel.app
 

@@ -30,7 +30,7 @@ export default function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse text-align-start" id="collapsibleNavbar">
-          <ul className="navbar-nav align-content-start justify-content-sm-start justify-content-md-between flex-sm-grow-1">
+          <ul className="navbar-nav align-content-start justify-content-between flex-grow-1">
             {user.isAdmin ? (
               <>
                 {links.map((page) => {

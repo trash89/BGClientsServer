@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { SmallSidebar, BigSidebar, Navbar, Copyright } from "../components";
+import { SmallSidebar, BigSidebar, Navbar, Footer } from "../components";
 const SharedLayout = () => {
   return (
     <main className="principal">
@@ -11,7 +11,7 @@ const SharedLayout = () => {
           <Outlet />
         </div>
       </div>
-      <Copyright />
+      <Footer />
     </main>
   );
 };

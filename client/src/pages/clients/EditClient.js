@@ -137,10 +137,10 @@ const EditClient = () => {
 
   if (user.isAdmin) {
     return (
-      <section className="container p-2 my-2 border border-primary rounded-3">
+      <section className="container p-2 my-2 border border-primary rounded-3 bg-success bg-opacity-10">
         <p className="h4 text-capitalize">
           edit client
-          <Link to={"/clients"}>
+          <Link to={"/clients"} className="mx-1">
             <i className="fa-solid fa-arrow-left" />
           </Link>
         </p>
@@ -250,12 +250,12 @@ const EditClient = () => {
               />
             </div>
           </div>
-          <button type="button" className="btn btn-primary me-2" data-bs-toggle="tooltip" title="Cancel" onClick={handleCancel} disabled={isEditing}>
+          <button type="button" className="btn btn-primary btn-sm me-2" data-bs-toggle="tooltip" title="Cancel" onClick={handleCancel} disabled={isEditing}>
             <i className="fa-solid fa-times" />
           </button>
           <button
             type="button"
-            className="btn btn-primary me-2"
+            className="btn btn-primary btn-sm me-2"
             title="Delete"
             disabled={isEditing}
             data-bs-toggle="modal"
@@ -266,7 +266,7 @@ const EditClient = () => {
           </button>
           <button
             type="button"
-            className="btn btn-primary me-2"
+            className="btn btn-primary btn-sm me-2"
             title="Reset Password"
             disabled={isEditing}
             data-bs-toggle="modal"
@@ -277,7 +277,7 @@ const EditClient = () => {
           </button>
           <button
             type="button"
-            className="btn btn-primary me-2"
+            className="btn btn-primary btn-sm me-2"
             data-bs-toggle="tooltip"
             title="Save"
             onClick={handleSave}

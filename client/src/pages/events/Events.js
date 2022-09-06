@@ -62,7 +62,7 @@ const Events = () => {
   }
 
   return (
-    <div className="container p-2 my-2 border border-primary rounded-3">
+    <div className="container p-2 my-2 border border-primary rounded-3 bg-success bg-opacity-10">
       <TotalRows link="/events/newEvent" count={data.count} download={handleDownloadCsv} title="Events List" />
 
       <ul className="list-group">

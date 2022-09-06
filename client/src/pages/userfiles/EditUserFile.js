@@ -146,10 +146,10 @@ const EditUserFile = () => {
 
   if (user.isAdmin) {
     return (
-      <section className="container p-2 my-2 border border-primary rounded-3">
+      <section className="container p-2 my-2 border border-primary rounded-3 bg-success bg-opacity-10">
         <p className="h4 text-capitalize">
           edit a file
-          <Link to={from}>
+          <Link to={from} className="mx-1">
             <i className="fa-solid fa-arrow-left" />
           </Link>
         </p>
@@ -194,18 +194,18 @@ const EditUserFile = () => {
             </select>
           </div>
           <div className="mb-3 mt-3">
-            <p className="text-primary mb-1 mt-1">
+            <p className="text-dark mb-1 mt-1">
               File Name:{" "}
               <a href={input.signedURL} target="_blank" rel="noreferrer">
                 {input.file_name}
               </a>
             </p>
-            <p className="text-primary mb-1 mt-1">
+            <p className="text-dark mb-1 mt-1">
               Type:{input.mimetype}, Size: {input.size}Mb
             </p>
-            <p className="text-primary mb-1 mt-1">Created at: {input.created_at}</p>
-            <p className="text-primary mb-1 mt-1">Updated at: {input.updated_at}</p>
-            <p className="text-primary mb-1 mt-1">Last accessed at: {input.last_accessed_at}</p>
+            <p className="text-dark mb-1 mt-1">Created at: {input.created_at}</p>
+            <p className="text-dark mb-1 mt-1">Updated at: {input.updated_at}</p>
+            <p className="text-dark mb-1 mt-1">Last accessed at: {input.last_accessed_at}</p>
           </div>
           <div className="form-check">
             <input
@@ -254,12 +254,12 @@ const EditUserFile = () => {
               disabled={isEditing}
             />
           </div>
-          <button type="button" className="btn btn-primary me-2" data-bs-toggle="tooltip" title="Cancel" onClick={handleCancel} disabled={isEditing}>
+          <button type="button" className="btn btn-primary btn-sm me-2" data-bs-toggle="tooltip" title="Cancel" onClick={handleCancel} disabled={isEditing}>
             <i className="fa-solid fa-times" />
           </button>
           <button
             type="button"
-            className="btn btn-primary me-2"
+            className="btn btn-primary btn-sm me-2"
             title="Delete"
             disabled={isEditing}
             data-bs-toggle="modal"
@@ -270,7 +270,7 @@ const EditUserFile = () => {
           </button>
           <button
             type="button"
-            className="btn btn-primary me-2"
+            className="btn btn-primary btn-sm me-2"
             data-bs-toggle="tooltip"
             title="Save"
             onClick={handleSave}

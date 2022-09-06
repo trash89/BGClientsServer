@@ -112,7 +112,7 @@ function PasswordReset() {
   if (isLoading) return <Progress />;
 
   return (
-    <section className="container p-2 my-2 border border-primary rounded-3">
+    <section className="container p-2 my-2 border border-primary rounded-3 bg-success bg-opacity-10">
       {isError ? (
         <p className="h6 text-bg-danger">{errorText}</p>
       ) : (
@@ -120,7 +120,7 @@ function PasswordReset() {
           <p className="h5">{user.email}</p>
           <p className="h4 text-capitalize">
             Changing the password
-            <Link to="/clients/clientView">
+            <Link to="/clients/clientView" className="mx-1">
               <i className="fa-solid fa-arrow-left" />
             </Link>
           </p>
@@ -156,12 +156,12 @@ function PasswordReset() {
                 />
               </div>
             </div>
-            <button type="button" className="btn btn-primary me-2" data-bs-toggle="tooltip" title="Cancel" onClick={handleCancel} disabled={isEditing}>
+            <button type="button" className="btn btn-primary btn-sm me-2" data-bs-toggle="tooltip" title="Cancel" onClick={handleCancel} disabled={isEditing}>
               <i className="fa-solid fa-times" />
             </button>
             <button
               type="button"
-              className="btn btn-primary me-2"
+              className="btn btn-primary btn-sm me-2"
               data-bs-toggle="tooltip"
               title="Save"
               onClick={handleSave}

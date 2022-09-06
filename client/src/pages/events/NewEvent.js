@@ -98,15 +98,18 @@ const NewEvent = () => {
   if (isLoading) return <Progress />;
 
   return (
-    <section className="container p-2 my-2 border border-primary rounded-3">
+    <section className="container p-2 my-2 border border-primary rounded-3 bg-success bg-opacity-10">
       <p className="h4 text-capitalize">
         enter a new event{" "}
-        <Link to={from}>
+        <Link to={from} className="mx-1">
           <i className="fa-solid fa-arrow-left" />
         </Link>
       </p>
       <form className="was-validated">
-        <div className="form-floating mb-3 mt-3">
+        <div className="mb-3 mt-3">
+          <label htmlFor="client_id" className="form-label">
+            Client:
+          </label>
           <select className="form-select" id="client_id" name="client_id" value={input.client_id} onChange={handleChange} disabled={isEditing}>
             {data?.clients?.map((client) => {
               return (
@@ -116,9 +119,11 @@ const NewEvent = () => {
               );
             })}
           </select>
-          <label htmlFor="client_id">Client:</label>
         </div>
-        <div className="form-floating mb-3 mt-3">
+        <div className="mb-3 mt-3">
+          <label htmlFor="ev_date" className="form-label">
+            Event Date:
+          </label>
           <input
             required
             type="date"
@@ -130,9 +135,11 @@ const NewEvent = () => {
             onChange={handleChange}
             disabled={isEditing}
           />
-          <label htmlFor="ev_date">Event Date:</label>
         </div>
-        <div className="form-floating mb-3 mt-3">
+        <div className="mb-3 mt-3">
+          <label htmlFor="ev_name" className="form-label">
+            Event Name:
+          </label>
           <input
             required
             type="text"
@@ -144,7 +151,6 @@ const NewEvent = () => {
             onChange={handleChange}
             disabled={isEditing}
           />
-          <label htmlFor="ev_name">Event Name:</label>
         </div>
         <div className="mb-3 mt-3">
           <label htmlFor="ev_description" className="form-label">
@@ -161,12 +167,12 @@ const NewEvent = () => {
             disabled={isEditing}
           />
         </div>
-        <button type="button" className="btn btn-primary me-2" data-bs-toggle="tooltip" title="Cancel" onClick={handleCancel} disabled={isEditing}>
+        <button type="button" className="btn btn-primary btn-sm me-2" data-bs-toggle="tooltip" title="Cancel" onClick={handleCancel} disabled={isEditing}>
           <i className="fa-solid fa-times" />
         </button>
         <button
           type="button"
-          className="btn btn-primary me-2"
+          className="btn btn-primary btn-sm me-2"
           data-bs-toggle="tooltip"
           title="Save"
           onClick={handleSave}

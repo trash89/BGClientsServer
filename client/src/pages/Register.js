@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "../axiosInstance";
 import { useCookies } from "react-cookie";
 
-import { Logo, Copyright, Progress } from "../components";
+import { Logo, Footer, Progress } from "../components";
 import { loginUser, setIsLoading, clearIsLoading, setInput, setError, clearError } from "../features/user/userSlice";
 import { useIsMounted } from "../hooks";
 
@@ -70,7 +70,7 @@ export default function Register() {
   if (isLoading) return <Progress />;
   return (
     <div className="container mx-auto" style={{ width: "300px" }}>
-      <div className="container-fluid p-2 my-4 shadow border border-primary rounded-3">
+      <div className="container-fluid p-2 my-4 shadow border border-primary rounded-3 bg-success bg-opacity-10">
         <div className="d-flex flex-row justify-content-center align-content-center align-items-center p-0 m-0">
           <Logo />
           <p className="h4 text-center text-capitalize flex-grow-1">BG Clients</p>
@@ -104,7 +104,7 @@ export default function Register() {
           </div>
           {isError && <p className="text-center text-danger">{errorText}</p>}
         </form>
-        <Copyright />
+        <Footer />
       </div>
     </div>
   );

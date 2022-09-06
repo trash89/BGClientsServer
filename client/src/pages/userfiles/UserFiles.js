@@ -49,7 +49,7 @@ const UserFiles = () => {
   }
 
   return (
-    <div className="container p-2 my-2 border border-primary rounded-3">
+    <div className="container p-2 my-2 border border-primary rounded-3 bg-success bg-opacity-10">
       <TotalRows link="/userfiles/newFile" count={data?.count} title="Userfiles list" />
       <ul className="list-group">
         {data?.userfiles?.map((row) => {

@@ -50,7 +50,7 @@ const ClientViewComponent = ({ user }) => {
   if (isLoading) return <Progress />;
 
   return (
-    <section className="container p-2 my-2 border border-primary rounded-3">
+    <section className="container p-2 my-2 border border-primary rounded-3 bg-success bg-opacity-10">
       <div className="d-flex">
         <div className="flex-grow-1">
           <p className="h5">{data.client?.email}</p>
@@ -58,7 +58,7 @@ const ClientViewComponent = ({ user }) => {
         <div className="flex-shrink-1">
           <button
             type="button"
-            className="btn btn-primary me-2"
+            className="btn btn-primary btn-sm me-2"
             title="Change Password"
             disabled={isEditing}
             data-bs-toggle="modal"

@@ -60,7 +60,7 @@ const Clients = () => {
   }
 
   return (
-    <div className="container p-2 my-2 border border-primary rounded-3">
+    <div className="container p-2 my-2 border border-primary rounded-3 bg-success bg-opacity-10">
       <TotalRows link="/clients/newClient" count={data.count} download={handleDownloadCsv} title="Clients list" />
       <div className="list-group">
         {data?.clients?.map((row) => {

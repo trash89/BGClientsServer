@@ -48,7 +48,7 @@ const resetClient = async (req, res) => {
           if (email === client.email) {
             try {
               const { error } = await supabase.auth.api.resetPasswordForEmail(client.email, {
-                redirectTo: "http://localhost:3000/password-reset",
+                redirectTo: "http://localhost:3000/passwordReset",
               });
               if (error) {
                 console.log(error);

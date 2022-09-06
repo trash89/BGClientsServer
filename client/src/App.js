@@ -51,9 +51,9 @@ function App() {
             <Route path=":idFile" element={<EditUserFile />} />
             <Route path="newfile" element={<NewUserFile />} />
           </Route>
+          <Route path="passwordReset" element={<PasswordReset />} />
         </Route>
         <Route path="register" element={<Register />} />
-        <Route path="password-reset" element={<PasswordReset />} />
         <Route path="*" element={<Error />} />
       </Routes>
       <ToastContainer position="top-center" autoClose={3000} />

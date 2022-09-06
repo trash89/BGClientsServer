@@ -44,7 +44,13 @@ export default function Navbar() {
                 })}
               </>
             ) : (
-              <></>
+              <>
+                <li className="nav-item text-capitalize">
+                  <Link to="/clients/clientView" className="nav-link">
+                    Client
+                  </Link>
+                </li>
+              </>
             )}
             <div className="d-inline-flex m-0 p-0">
               <li className="navbar-item dropdown">

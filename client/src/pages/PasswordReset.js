@@ -1,55 +1,177 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { axiosInstance } from "../axiosInstance";
+import { toast } from "react-toastify";
 import { useIsMounted } from "../hooks";
+import { Link } from "react-router-dom";
+import { Progress } from "../components";
+import { logoutUser } from "../features/user/userSlice";
+import { useCookies } from "react-cookie";
+
+import {
+  setIsLoading,
+  clearIsLoading,
+  setIsEditing,
+  clearIsEditing,
+  setError,
+  clearValues,
+  setInput,
+  clearError,
+  setData,
+} from "../features/clientview/clientviewSlice";
 //localhost:3000/passwordReset#access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNjYyNDQxNTg5LCJzdWIiOiJiODk0ZDY4NC0wODk2LTQ0NDUtYTA3NS0yOGVlZjJlNGUxMzYiLCJlbWFpbCI6Im1yODlAbGFwb3N0ZS5uZXQiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7fSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJzZXNzaW9uX2lkIjoiMGU3ODRhMTEtM2MzNi00MTg2LTk3YTMtNTE0OGE2NDlmZDE4In0.GXw8qzKozs8Lrmq4YhV2AphTUOZkA_7d4ZOLoVrEk6c&expires_in=3600&refresh_token=d1Y-f85J7mClFKgsgf90ZQ&token_type=bearer&type=recovery
 
 function PasswordReset() {
-  const [password, setPassword] = useState("");
-  const [hash, setHash] = useState(null);
-  const [error, setError] = useState(null);
   const isMounted = useIsMounted();
+  const [cookies, setCookie, removeCookie] = useCookies();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { data, input, isLoading, isEditing, isError, errorText } = useSelector((store) => store.clientview);
+  const { user } = useSelector((store) => store.user);
 
   useEffect(() => {
-    setHash(window.location.hash);
+    dispatch(clearValues());
+    dispatch(setInput({ name: "hash", value: window.location.hash }));
+    const getData = async () => {
+      dispatch(setIsLoading());
+      try {
+        const resp = await axiosInstance.post("/clientview", { id: user.id, email: user.email });
+        dispatch(setData(resp.data));
+      } catch (error) {
+        console.log(error);
+        dispatch(setError(error?.response?.data?.error?.message || error?.message));
+      } finally {
+        dispatch(clearIsLoading());
+      }
+    };
+    getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (input.hash) {
+      const hashArr = input.hash
+        .substring(1)
+        .split("&")
+        .map((param) => param.split("="));
+      let type;
+      let accessToken;
+      for (const [key, value] of hashArr) {
+        if (key === "type") {
+          type = value;
+        } else if (key === "access_token") {
+          accessToken = value;
+          dispatch(setInput({ name: "access_token", value: accessToken }));
+        }
+      }
+      if (type !== "recovery" || !accessToken || typeof accessToken === "object") {
+        dispatch(setError("Invalid access token or type"));
+      }
+    }
+  }, [input.hash]);
 
-    // if the user doesn't have accesstoken
+  const handleChange = async (e) => {
+    dispatch(setInput({ name: e.target.name, value: e.target.value }));
+    if (isError) dispatch(clearError());
+  };
+  const handleCancel = async (e) => {
+    e.preventDefault();
+    dispatch(clearValues());
+    navigate("/clients/clientView", { replace: true });
+  };
+  const handleSave = async (e) => {
+    const logout = () => {
+      dispatch(logoutUser());
+      dispatch(clearValues());
+      removeCookie("sb-access-token", { path: "/" });
+      removeCookie("sb-refresh-token", { path: "/" });
+      navigate("/register", { replace: true });
+    };
+    e.preventDefault();
+    try {
+      dispatch(setIsEditing());
+      await axiosInstance.put(`/clients/${data?.client?.id}`, {
+        id: data?.client?.id,
+        email: data?.client?.email,
+        password1: input.password1,
+        password2: input.password2,
+        access_token: input.access_token,
+      });
+      toast.success(`Successfully changed the password!`);
+      logout();
+    } catch (error) {
+      console.log(error);
+      dispatch(setError(error?.response?.data?.error?.message || error?.message));
+    } finally {
+      dispatch(clearIsEditing());
+    }
   };
 
   if (!isMounted) return <></>;
+  if (isLoading) return <Progress />;
 
-  if (!hash) {
-    setError("Sorry, Invalid token");
-  } else if (hash) {
-    const hashArr = hash
-      .substring(1)
-      .split("&")
-      .map((param) => param.split("="));
-
-    let type;
-    let accessToken;
-    for (const [key, value] of hashArr) {
-      if (key === "type") {
-        type = value;
-      } else if (key === "access_token") {
-        accessToken = value;
-      }
-    }
-
-    if (type !== "recovery" || !accessToken || typeof accessToken === "object") {
-      setError("Invalid access token or type");
-    }
-  }
   return (
     <section className="container p-2 my-2 border border-primary rounded-3">
-      <p className="h6">Changing the password</p>
-      <form onSubmit={(e) => handleSubmit(e)}>
-        <input type="password" required value={password} placeholder="Please enter your Password" onChange={(e) => setPassword(e.target.value)} />
-
-        <button type="submit">Submit</button>
-      </form>
+      {isError ? (
+        <p className="h6 text-bg-danger">{errorText}</p>
+      ) : (
+        <>
+          <p className="h5">{user.email}</p>
+          <p className="h4 text-capitalize">
+            Changing the password
+            <Link to="/clients/clientView">
+              <i className="fa-solid fa-arrow-left" />
+            </Link>
+          </p>
+          <form className="was-validated">
+            <div className="row mb-3 mt-3">
+              <div className="col">
+                <label htmlFor="password1" className="form-label">
+                  Password:
+                </label>
+                <input
+                  autoFocus
+                  required
+                  type="password"
+                  className="form-control"
+                  id="password1"
+                  name="password1"
+                  value={input.password1}
+                  onChange={handleChange}
+                  disabled={isEditing}
+                />
+                <label htmlFor="password2" className="form-label">
+                  Repeat password:
+                </label>
+                <input
+                  required
+                  type="password"
+                  className="form-control"
+                  id="password2"
+                  name="password2"
+                  value={input.password2}
+                  onChange={handleChange}
+                  disabled={isEditing}
+                />
+              </div>
+            </div>
+            <button type="button" className="btn btn-primary me-2" data-bs-toggle="tooltip" title="Cancel" onClick={handleCancel} disabled={isEditing}>
+              <i className="fa-solid fa-times" />
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary me-2"
+              data-bs-toggle="tooltip"
+              title="Save"
+              onClick={handleSave}
+              disabled={isEditing || !input.password1 || !input.password2 || input.password1 !== input.password2}
+            >
+              <i className="fa-solid fa-floppy-disk" />
+            </button>
+          </form>
+        </>
+      )}
     </section>
   );
 }

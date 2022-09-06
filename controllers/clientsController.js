@@ -4,7 +4,7 @@ import { StatusCodes } from "http-status-codes";
 const resetClient = async (req, res) => {
   if (req.method === "PUT") {
     const { id } = req.params;
-    const { password, email } = req.body;
+    const { password, email, password1, password2, access_token } = req.body;
     const user = req.user;
     if (id && password && password !== "") {
       // reset the password
@@ -33,8 +33,7 @@ const resetClient = async (req, res) => {
         return res.status(StatusCodes.BAD_REQUEST).json({ error });
       }
     } else {
-      // send reset link to user
-      if (id && email && email !== "") {
+      if (id && email && email !== "" && password1 && password1 !== "" && password2 && password2 !== "" && access_token && access_token !== "") {
         try {
           let query = supabase.from("clients").select("*").eq("id", parseInt(id));
           if (!user.isAdmin) {
@@ -45,29 +44,66 @@ const resetClient = async (req, res) => {
           if (error) {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,clients" } });
           }
-          if (email === client.email) {
-            try {
-              const { error } = await supabase.auth.api.resetPasswordForEmail(client.email, {
-                redirectTo: "http://localhost:3000/passwordReset",
-              });
-              if (error) {
-                console.log(error);
-                return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          try {
+            const { user: userHash, error: errorHash } = await supabase.auth.api.getUser(access_token);
+            if (errorHash) {
+              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorHash, msg: "resetClient,getUser" } });
+            }
+            if (userHash.id === client.user_id) {
+              const { data: user, error: errorUser } = await supabase.auth.api.updateUserById(client.user_id, { password: password1 });
+              if (errorUser) {
+                return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUser, msg: "resetClient,updateUserById" } });
               }
               return res.status(StatusCodes.OK).json({ client, error });
-            } catch (error) {
+            } else {
               console.log(error);
-              return res.status(StatusCodes.BAD_REQUEST).json({ error });
+              return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "invalid user id" } });
             }
-          } else {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,invalid email" } });
+          } catch (error) {
+            console.log(error);
+            return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
           console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided" } });
+        // send reset link to user
+        if (id && email && email !== "") {
+          try {
+            let query = supabase.from("clients").select("*").eq("id", parseInt(id));
+            if (!user.isAdmin) {
+              query = query.eq("user_id", user.id);
+            }
+            query = query.single();
+            const { data: client, error } = await query;
+            if (error) {
+              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,clients" } });
+            }
+            if (email === client.email) {
+              try {
+                const { error } = await supabase.auth.api.resetPasswordForEmail(client.email, {
+                  redirectTo: "http://localhost:3000/passwordReset",
+                });
+                if (error) {
+                  console.log(error);
+                  return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                }
+                return res.status(StatusCodes.OK).json({ client, error });
+              } catch (error) {
+                console.log(error);
+                return res.status(StatusCodes.BAD_REQUEST).json({ error });
+              }
+            } else {
+              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,invalid email" } });
+            }
+          } catch (error) {
+            console.log(error);
+            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          }
+        } else {
+          return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided" } });
+        }
       }
     }
   } else {

@@ -11,7 +11,6 @@ export default function Navbar() {
   const { user } = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const logout = () => {
     dispatch(logoutUser());
     dispatch(clearValues());
@@ -26,6 +25,7 @@ export default function Navbar() {
         <a href="/" className="navbar-brand">
           <Logo />
         </a>
+
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
           <span className="navbar-toggler-icon"></span>
         </button>

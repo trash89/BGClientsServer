@@ -14,7 +14,6 @@ import path from "path";
 
 import helmet from "helmet";
 import xss from "xss-clean";
-import cookieParser from "cookie-parser";
 
 // routers
 import authRouter from "./routes/authRoutes.js";
@@ -54,34 +53,16 @@ app.use(
     methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS", "HEAD", "CONNECT", "TRACE"],
   })
 );
-app.options(
-  "*",
-  cors({
-    origin: [origin],
-    credentials: true,
-    optionsSuccessStatus: 200,
-    methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS", "HEAD", "CONNECT", "TRACE"],
-  })
-);
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", origin);
-  res.header("Access-Control-Allow-Credentials", true);
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, UPDATE, PUT, PATCH, OPTIONS, HEAD, CONNECT, TRACE");
-  res.header("Allow", "GET, POST, DELETE, UPDATE, PUT, PATCH, OPTIONS, HEAD, CONNECT, TRACE");
-  next();
-});
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
-    extended: true,
+    extended: false,
   })
 );
 app.use(fileupload());
 app.use(express.json());
 app.use(helmet());
 app.use(xss());
-app.use(cookieParser());
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/clients", authenticateUser, clientsRouter);

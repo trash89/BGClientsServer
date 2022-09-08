@@ -1,21 +1,19 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
+import { axiosInstance } from "../axiosInstance";
 
 import { logoutUser, clearValues } from "../features/user/userSlice";
 import { links } from "../utils/links";
 import Logo from "./Logo";
 
 export default function Navbar() {
-  const [cookies, setCookie, removeCookie] = useCookies();
   const { user } = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const logout = () => {
     dispatch(logoutUser());
     dispatch(clearValues());
-    removeCookie("sb-access-token", { path: "/" });
-    removeCookie("sb-refresh-token", { path: "/" });
+    axiosInstance.defaults.headers.common["Authorization"] = null;
     navigate("/register", { replace: true });
   };
 

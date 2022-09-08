@@ -7,7 +7,6 @@ import { useIsMounted } from "../hooks";
 import { Link } from "react-router-dom";
 import { Progress } from "../components";
 import { logoutUser } from "../features/user/userSlice";
-import { useCookies } from "react-cookie";
 
 import {
   setIsLoading,
@@ -20,11 +19,9 @@ import {
   clearError,
   setData,
 } from "../features/clientview/clientviewSlice";
-//localhost:3000/passwordReset#access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNjYyNDQxNTg5LCJzdWIiOiJiODk0ZDY4NC0wODk2LTQ0NDUtYTA3NS0yOGVlZjJlNGUxMzYiLCJlbWFpbCI6Im1yODlAbGFwb3N0ZS5uZXQiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7fSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJzZXNzaW9uX2lkIjoiMGU3ODRhMTEtM2MzNi00MTg2LTk3YTMtNTE0OGE2NDlmZDE4In0.GXw8qzKozs8Lrmq4YhV2AphTUOZkA_7d4ZOLoVrEk6c&expires_in=3600&refresh_token=d1Y-f85J7mClFKgsgf90ZQ&token_type=bearer&type=recovery
 
 function PasswordReset() {
   const isMounted = useIsMounted();
-  const [cookies, setCookie, removeCookie] = useCookies();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { data, input, isLoading, isEditing, isError, errorText } = useSelector((store) => store.clientview);
@@ -84,8 +81,7 @@ function PasswordReset() {
     const logout = () => {
       dispatch(logoutUser());
       dispatch(clearValues());
-      removeCookie("sb-access-token", { path: "/" });
-      removeCookie("sb-refresh-token", { path: "/" });
+      axiosInstance.defaults.headers.common["Authorization"] = null;
       navigate("/register", { replace: true });
     };
     e.preventDefault();

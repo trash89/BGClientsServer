@@ -4,7 +4,6 @@ const defaultPassword = "secret123";
 
 let APISERVER = "http://localhost:5000/api/v1";
 if (process.env.NODE_ENV === "production") {
-  //APISERVER = "https://bgclients.herokuapp.com/api/v1";
   APISERVER = "https://bgclients.vercel.app/api/v1";
 }
 

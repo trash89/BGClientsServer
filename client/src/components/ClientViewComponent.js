@@ -78,10 +78,10 @@ const ClientViewComponent = ({ user }) => {
             <div className="modal-body">Are you sure to change the password ?</div>
             <div className="modal-body">A reset link will be sent to your email address.</div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-danger" data-bs-dismiss="modal" onClick={handleSend}>
+              <button type="button" className="btn btn-primary btn-sm" data-bs-dismiss="modal" onClick={handleSend}>
                 Send
               </button>
-              <button type="button" className="btn btn-primary" data-bs-dismiss="modal">
+              <button type="button" className="btn btn-secondary btn-sm" data-bs-dismiss="modal">
                 Cancel
               </button>
             </div>
@@ -118,7 +118,7 @@ const ClientViewComponent = ({ user }) => {
                 <div className="card" key={file?.id}>
                   <div className="card-header">{file?.file_description}</div>
                   <div className="card-body">
-                    <a href={file?.signedURL} target="_blank" rel="noreferrer">
+                    <a href={file?.signedURL} target="_blank" rel="noopener noreferrer">
                       {file?.file_name}
                     </a>
                   </div>

@@ -6,7 +6,7 @@ const initialState = {
   input: {
     password1: "",
     password2: "",
-    hash: "",
+    hash: null,
     access_token: "",
   },
   data: {},

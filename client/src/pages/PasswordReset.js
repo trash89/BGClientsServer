@@ -27,27 +27,25 @@ function PasswordReset() {
   const { data, input, isLoading, isEditing, isError, errorText } = useSelector((store) => store.clientview);
   const { user } = useSelector((store) => store.user);
 
+  const getData = async () => {
+    dispatch(setIsLoading());
+    try {
+      if (input.access_token && input.access_token !== "") {
+        axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${input.access_token}`;
+        const resp = await axiosInstance.post("/clientview", { id: user.id, email: user.email });
+        dispatch(setData(resp.data));
+      }
+    } catch (error) {
+      console.log(error);
+      dispatch(setError(error?.response?.data?.error?.message || error?.message));
+    } finally {
+      dispatch(clearIsLoading());
+    }
+  };
   useEffect(() => {
     dispatch(clearValues());
     dispatch(setInput({ name: "hash", value: window.location.hash }));
-    const getData = async () => {
-      dispatch(setIsLoading());
-      try {
-        const resp = await axiosInstance.post("/clientview", { id: user.id, email: user.email });
-        dispatch(setData(resp.data));
-      } catch (error) {
-        console.log(error);
-        dispatch(setError(error?.response?.data?.error?.message || error?.message));
-      } finally {
-        dispatch(clearIsLoading());
-      }
-    };
-    getData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (input.hash) {
+    if (input.hash && input.hash !== "") {
       const hashArr = input.hash
         .substring(1)
         .split("&")
@@ -65,8 +63,37 @@ function PasswordReset() {
       if (type !== "recovery" || !accessToken || typeof accessToken === "object") {
         dispatch(setError("Invalid access token or type"));
       }
+      if (input.access_token && input.access_token !== "") {
+        getData();
+      }
     }
-  }, [input.hash]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (input.hash && input.hash !== "") {
+      const hashArr = input.hash
+        .substring(1)
+        .split("&")
+        .map((param) => param.split("="));
+      let type;
+      let accessToken;
+      for (const [key, value] of hashArr) {
+        if (key === "type") {
+          type = value;
+        } else if (key === "access_token") {
+          accessToken = value;
+          dispatch(setInput({ name: "access_token", value: accessToken }));
+        }
+      }
+      if (type !== "recovery" || !accessToken || typeof accessToken === "object") {
+        dispatch(setError("Invalid access token or type"));
+      }
+      if (input.access_token && input.access_token !== "") {
+        getData();
+      }
+    }
+  }, [input.hash, input.access_token]);
 
   const handleChange = async (e) => {
     dispatch(setInput({ name: e.target.name, value: e.target.value }));
@@ -79,23 +106,26 @@ function PasswordReset() {
   };
   const handleSave = async (e) => {
     const logout = () => {
+      axiosInstance.defaults.headers.common["Authorization"] = null;
       dispatch(logoutUser());
       dispatch(clearValues());
-      axiosInstance.defaults.headers.common["Authorization"] = null;
       navigate("/register", { replace: true });
     };
     e.preventDefault();
     try {
-      dispatch(setIsEditing());
-      await axiosInstance.put(`/clients/${data?.client?.id}`, {
-        id: data?.client?.id,
-        email: data?.client?.email,
-        password1: input.password1,
-        password2: input.password2,
-        access_token: input.access_token,
-      });
-      toast.success(`Successfully changed the password!`);
-      logout();
+      if (input.access_token && input.access_token !== "" && data.client) {
+        dispatch(setIsEditing());
+        axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${input.access_token}`;
+        await axiosInstance.put(`/clients/${data.client.id}`, {
+          id: data.client.id,
+          email: data.client.email,
+          password1: input.password1,
+          password2: input.password2,
+          access_token: input.access_token,
+        });
+        toast.success(`Successfully changed the password!`);
+        logout();
+      }
     } catch (error) {
       console.log(error);
       dispatch(setError(error?.response?.data?.error?.message || error?.message));
@@ -104,8 +134,8 @@ function PasswordReset() {
     }
   };
 
-  if (!isMounted) return <></>;
   if (isLoading) return <Progress />;
+  if (!isMounted || !input.hash || input.hash === "" || !data.client) return <></>;
 
   return (
     <section className="container p-2 my-2 border border-primary rounded-3 bg-success bg-opacity-10">

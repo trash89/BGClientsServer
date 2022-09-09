@@ -83,7 +83,8 @@ const resetClient = async (req, res) => {
             if (email === client.email) {
               try {
                 const { error } = await supabase.auth.api.resetPasswordForEmail(client.email, {
-                  redirectTo: "http://localhost:3000/passwordReset",
+                  //redirectTo: "http://localhost:3000/passwordReset",
+                  redirectTo: "https://bgclients.vercel.app/passwordReset",
                 });
                 if (error) {
                   console.log(error);

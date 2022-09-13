@@ -41,7 +41,6 @@ const userSlice = createSlice({
     },
     loginUser: (state, { payload }) => {
       addUserToLocalStorage(payload);
-
       toast.success(`Hello There ${payload.email}`);
       return { ...state, user: payload, isSidebarOpen: false };
     },

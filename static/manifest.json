@@ -1,6 +1,6 @@
 {
-  "short_name": "BGClients",
-  "name": "BGClients",
+  "short_name": "BGClientsServer",
+  "name": "BGClients API REST Server",
   "icons": [
     {
       "src": "./favicon.ico",

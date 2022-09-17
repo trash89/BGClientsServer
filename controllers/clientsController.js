@@ -124,7 +124,7 @@ const getOneClient = async (req, res) => {
       query = query.single();
       const { data: client, error: errorClient } = await query;
       if (errorClient) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorClient, msg: "getOneClient" } });
+        return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClient, msg: "getOneClient" } });
       }
       try {
         let query = supabase
@@ -138,7 +138,7 @@ const getOneClient = async (req, res) => {
         }
         const { data: events, error: errorEvents, count: countEvents } = await query;
         if (errorEvents) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEvents, msg: "getOneClient, events" } });
+          return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEvents, msg: "getOneClient, events" } });
         }
         try {
           let query = supabase.from("files").select("*", { count: "exact" }).eq("client_id", client.id).order("file_name", { ascending: true });
@@ -147,7 +147,7 @@ const getOneClient = async (req, res) => {
           }
           const { data: userfiles, error: errorUserfiles, count: countUserfiles } = await query;
           if (errorUserfiles) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUserfiles, msg: "getOneClient, userfiles" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUserfiles, msg: "getOneClient, userfiles" } });
           }
           return res
             .status(StatusCodes.OK)
@@ -298,13 +298,13 @@ const editClient = async (req, res) => {
             email_confirm: true,
           });
           if (errorEditUser) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEditUser, msg: "editClient,updateUserById" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEditUser, msg: "editClient,updateUserById" } });
           }
           try {
             //update the client
             const { data: client, error } = await supabase.from("clients").update({ email, name, description, address, user_id, localuser_id }).eq("id", id);
             if (error) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "editClient,update clients" } });
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "editClient,update clients" } });
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } catch (error) {
@@ -336,7 +336,7 @@ const deleteClient = async (req, res) => {
           // select the client
           const { data: clientSel, error: errorClientSel } = await supabase.from("clients").select("id,email,localuser_id,user_id").eq("id", id).single();
           if (errorClientSel) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorClientSel, msg: "deleteClient,select client" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClientSel, msg: "deleteClient,select client" } });
           }
           try {
             // delete from events
@@ -368,24 +368,24 @@ const deleteClient = async (req, res) => {
                     if (errorEmptyBucket) {
                       return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEmptyBucket, msg: "deleteClient,empty bucket" } });
                     }
-                  } catch (error) {
-                    console.log(error);
-                    return res.status(StatusCodes.BAD_REQUEST).json({ error });
-                  }
-                  try {
-                    // delete the bucket
-                    const { error } = await supabase.storage.deleteBucket(`client${clientSel.id}`);
-                    if (error) {
-                      return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "deleteClient,delete bucket" } });
-                    }
                     try {
-                      // delete the user
-                      const { error: errorDeleteUser } = await supabase.auth.api.deleteUser(clientSel.user_id);
-                      if (errorDeleteUser) {
-                        return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorDeleteUser, msg: "deleteClient,deleteUser" } });
+                      // delete the bucket
+                      const { error } = await supabase.storage.deleteBucket(`client${clientSel.id}`);
+                      if (error) {
+                        return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "deleteClient,delete bucket" } });
                       }
-                      // OK, return the deleted client
-                      return res.status(StatusCodes.OK).json({ client: clientSel, error: errorDeleteUser });
+                      try {
+                        // delete the user
+                        const { error: errorDeleteUser } = await supabase.auth.api.deleteUser(clientSel.user_id);
+                        if (errorDeleteUser) {
+                          return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorDeleteUser, msg: "deleteClient,deleteUser" } });
+                        }
+                        // OK, return the deleted client
+                        return res.status(StatusCodes.OK).json({ client: clientSel, error: errorDeleteUser });
+                      } catch (error) {
+                        console.log(error);
+                        return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                      }
                     } catch (error) {
                       console.log(error);
                       return res.status(StatusCodes.BAD_REQUEST).json({ error });

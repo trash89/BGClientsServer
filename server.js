@@ -27,7 +27,7 @@ import notFoundMiddleware from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import authenticateUser from "./middleware/auth.js";
 
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
@@ -80,8 +80,8 @@ app.use(errorHandlerMiddleware);
 
 const start = async () => {
   try {
-    app.listen(port, () => {
-      console.log(`Server is listening on port ${port}...`);
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is listening on http://localhost:${PORT}`);
     });
   } catch (error) {
     console.log(error);

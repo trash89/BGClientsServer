@@ -24,44 +24,64 @@
       crossorigin="anonymous"
     ></script>
     <div class="container">
-      <p class="h1">BG Clients API REST server</p>
-      <p class="text-normal">Servers</p>
-      <p class="text-normal">http://localhost:5000/api/v1</p>
+      <div class="h1">BG Clients API REST</div>
+      <div class="h3 text-normal text-capitalize">servers</div>
+      <div class="text-normal">http://localhost:5000/api/v1</div>
+      <br />
+      <div class="h5 text-normal text-capitalize">authentication</div>
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
-          <p class="text-normal">authentication</p>
-          <p class="text-normal">/auth/login</p>
+          <div class="text-normal">/auth/login</div>
           <ul class="list-group">
             <li class="list-group-item">POST</li>
           </ul>
         </li>
+        <div class="h5 text-normal text-capitalize">clients</div>
         <li class="list-group-item">
-          <p class="text-normal">clients</p>
-          <p class="text-normal">/clients</p>
-          <ul class="list-group">
-            <li class="list-group-item">GET</li>
-            <li class="list-group-item">POST</li>
-          </ul>
-        </li>
-        <li class="list-group-item">
-          <p class="text-normal">events</p>
-          <p class="text-normal">/events</p>
+          <div class="text-normal">/clients</div>
           <ul class="list-group">
             <li class="list-group-item">GET</li>
             <li class="list-group-item">POST</li>
           </ul>
+          <div class="text-normal">/clients/{:id}</div>
+          <ul class="list-group">
+            <li class="list-group-item">GET</li>
+            <li class="list-group-item">PATCH</li>
+            <li class="list-group-item">DELETE</li>
+            <li class="list-group-item">PUT</li>
+          </ul>
         </li>
+        <div class="h5 text-normal text-capitalize">events</div>
         <li class="list-group-item">
-          <p class="text-normal">userfiles</p>
-          <p class="text-normal">/userfiles</p>
+          <div class="text-normal">/events</div>
           <ul class="list-group">
             <li class="list-group-item">GET</li>
             <li class="list-group-item">POST</li>
           </ul>
+          <div class="text-normal">/events/{:id}</div>
+          <ul class="list-group">
+            <li class="list-group-item">GET</li>
+            <li class="list-group-item">PATCH</li>
+            <li class="list-group-item">DELETE</li>
+          </ul>
         </li>
+        <div class="h5 text-normal text-capitalize">userfiles</div>
         <li class="list-group-item">
-          <p class="text-normal">clientview</p>
-          <p class="text-normal">/clientview</p>
+          <div class="text-normal">/userfiles</div>
+          <ul class="list-group">
+            <li class="list-group-item">GET</li>
+            <li class="list-group-item">POST</li>
+          </ul>
+          <div class="text-normal">/userfiles/{:id}</div>
+          <ul class="list-group">
+            <li class="list-group-item">GET</li>
+            <li class="list-group-item">PATCH</li>
+            <li class="list-group-item">DELETE</li>
+          </ul>
+        </li>
+        <div class="h5 text-normal text-capitalize">clientview</div>
+        <li class="list-group-item">
+          <div class="text-normal">/clientview</div>
           <ul class="list-group">
             <li class="list-group-item">GET</li>
             <li class="list-group-item">POST</li>

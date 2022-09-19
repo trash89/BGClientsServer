@@ -1,5 +1,7 @@
 # API REST server for BG Clients Application
 
+Live at https://bgclientsserver.vercel.app
+
 The BG Clients Application is allowing to keep track of the clients for a lawyer office.\
 It allows the creation of a private secured area for clients in order to communicate them useful informations like events and PDF files they can consult and download.\
 Once the application administrator creates a client, an user is created on Supabase with his email and a default password.\

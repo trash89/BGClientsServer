@@ -3,7 +3,7 @@
  * /clientview:
  *   post:
  *     tags:
- *       - clientview
+ *       - Clientview
  *     summary: Client's actions
  *     description: Actions a client can execute like change password, etc
  *     responses:

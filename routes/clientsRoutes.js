@@ -3,7 +3,7 @@
  * /clients:
  *   get:
  *     tags:
- *       - clients
+ *       - Clients
  *     summary: Retrieve the list of clients
  *     description: Retrieve the list of clients.
  *     responses:
@@ -13,9 +13,41 @@
  *       - bearerAuth: []
  *   post:
  *     tags:
- *       - clients
+ *       - Clients
  *     summary: Create a new client
  *     description: Create a new client.
+ *     security:
+ *       - bearerAuth: []
+ * /clients/{id}:
+ *   get:
+ *     tags:
+ *       - Clients
+ *     summary: Get one client details
+ *     description: Get one client details
+ *     responses:
+ *       '200':
+ *         description: Successful operation
+ *     security:
+ *       - bearerAuth: []
+ *   patch:
+ *     tags:
+ *       - Clients
+ *     summary: Create a new client
+ *     description: Create a new client.
+ *     security:
+ *       - bearerAuth: []
+ *   delete:
+ *     tags:
+ *       - Clients
+ *     summary: Delete a client
+ *     description: Delete a client
+ *     security:
+ *       - bearerAuth: []
+ *   put:
+ *     tags:
+ *       - Clients
+ *     summary: Reset the password for a client
+ *     description: Reset the password for a client
  *     security:
  *       - bearerAuth: []
  *

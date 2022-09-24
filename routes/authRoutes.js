@@ -3,8 +3,8 @@
  * /auth/login:
  *   post:
  *     tags:
- *       - auth
- *     summary: Authenticate an user
+ *       - Auth
+ *     summary: Authenticate on BGClients API REST server
  *     description: Authenticate an user to BGClients API REST server
  *     requestBody:
  *       required: true

@@ -5,7 +5,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon --ext js,html,json --watch . /supabase /static /routes /middleware /errors /controllers --ignore ./node_modules server.js"
+    "start": "nodemon --ext js,html,json --watch . /supabase /static /routes /middleware /errors /controllers --ignore ./node_modules server.js",
+    "test": "mocha"
   },
   "keywords": [],
   "author": "",
@@ -28,5 +29,9 @@
   },
   "engines": {
     "node": "16.x"
+  },
+  "devDependencies": {
+    "axios": "^0.27.2",
+    "chai": "^4.3.6"
   }
 }

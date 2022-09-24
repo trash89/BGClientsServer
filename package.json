@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "nodemon --ext js,html,json --watch . /supabase /static /routes /middleware /errors /controllers --ignore ./node_modules server.js",
-    "test": "mocha"
+    "test": "mocha --sort --recursive"
   },
   "keywords": [],
   "author": "",

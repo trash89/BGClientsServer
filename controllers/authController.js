@@ -16,7 +16,10 @@ const login = async (req, res) => {
       if (errorLocalUser) {
         return res.status(StatusCodes.UNAUTHORIZED).json({ error: errorLocalUser });
       }
-      return res.status(StatusCodes.OK).json({ user: { ...user, isAdmin: localUser.isAdmin }, session });
+      return res.status(StatusCodes.OK).json({
+        user: { id: user.id, email: user.email, isAdmin: localUser.isAdmin },
+        session: { access_token: session.access_token, refresh_token: session.refresh_token },
+      });
     } catch (error) {
       console.log(error);
       return res.status(StatusCodes.UNAUTHORIZED).json({ error });

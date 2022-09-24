@@ -1,3 +1,28 @@
+/**
+ * @swagger
+ * /userfiles:
+ *   get:
+ *     tags:
+ *       - userfiles
+ *     summary: Retrieve the list of files.
+ *     description: Retrieve the list of files.
+ *     responses:
+ *       '200':
+ *         description: Successful operation
+ *     security:
+ *       - bearerAuth: []
+ *   post:
+ *     tags:
+ *       - userfiles
+ *     summary: Create a new file for a client
+ *     description: Create a new file for a client.
+ *     responses:
+ *       '200':
+ *         description: Successful operation
+ *     security:
+ *       - bearerAuth: []
+ *
+ */
 import express from "express";
 const router = express.Router();
 

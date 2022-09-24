@@ -1,7 +1,7 @@
 {
-  "name": "bgclients",
+  "name": "bgclientsserver",
   "version": "1.0.0",
-  "description": "#### BG Clients",
+  "description": "#### BG Clients API REST Server",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -23,6 +23,8 @@
     "http-status-codes": "^2.1.4",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
+    "swagger-jsdoc": "^6.2.5",
+    "swagger-ui-express": "^4.5.0",
     "xss-clean": "^0.1.1"
   },
   "engines": {

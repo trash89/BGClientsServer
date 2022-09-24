@@ -1,3 +1,18 @@
+/**
+ * @swagger
+ * /clientview:
+ *   post:
+ *     tags:
+ *       - clientview
+ *     summary: Client's actions
+ *     description: Actions a client can execute like change password, etc
+ *     responses:
+ *       '200':
+ *         description: Successful operation
+ *     security:
+ *       - bearerAuth: []
+ *
+ */
 import express from "express";
 const router = express.Router();
 

@@ -1,3 +1,25 @@
+/**
+ * @swagger
+ * /clients:
+ *   get:
+ *     tags:
+ *       - clients
+ *     summary: Retrieve the list of clients
+ *     description: Retrieve the list of clients.
+ *     responses:
+ *       '200':
+ *         description: Successful operation
+ *     security:
+ *       - bearerAuth: []
+ *   post:
+ *     tags:
+ *       - clients
+ *     summary: Create a new client
+ *     description: Create a new client.
+ *     security:
+ *       - bearerAuth: []
+ *
+ */
 import express from "express";
 const router = express.Router();
 

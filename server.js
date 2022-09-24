@@ -27,6 +27,9 @@ import notFoundMiddleware from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import authenticateUser from "./middleware/auth.js";
 
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+
 const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== "production") {
@@ -70,6 +73,52 @@ app.use("/api/v1/events", authenticateUser, eventsRouter);
 app.use("/api/v1/userfiles", authenticateUser, userfilesRouter);
 app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
 
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "BGClients Express API with Swagger",
+      version: "0.1.0",
+      description: "This is the documentation of BGClients API REST server, made with Express and Swagger",
+      license: {
+        name: "MIT",
+        url: "https://spdx.org/licenses/MIT.html",
+      },
+      contact: {
+        name: "trash89",
+        url: "https://github.com/trash89",
+        email: "trash89@laposte.net",
+      },
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}/api/v1`,
+      },
+    ],
+    tags: [
+      { name: "auth", description: "BGClients server API REST Authentication" },
+      { name: "clients", description: "Operations on clients" },
+      { name: "events", description: "Operations on client's events" },
+      { name: "userfiles", description: "Operations on client's files" },
+      { name: "clientview", description: "Actions a client can request: change password, etc." },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+  },
+  apis: ["./routes/authRoutes.js", "./routes/clientsRoutes.js", "./routes/eventsRoutes.js", "./routes/userfilesRoutes.js", "./routes/clientviewRoutes.js"],
+};
+
+const specs = swaggerJsdoc(options);
+console.log(specs);
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs, { explorer: false }));
+
 // only when ready to deploy
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "./static", "index.html"));
@@ -82,6 +131,7 @@ const start = async () => {
   try {
     app.listen(PORT, () => {
       console.log(`🚀 Server is listening on http://localhost:${PORT}`);
+      console.log(`🚀 API REST Documentation is available at http://localhost:${PORT}/docs`);
     });
   } catch (error) {
     console.log(error);

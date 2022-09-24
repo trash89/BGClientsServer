@@ -5,7 +5,7 @@
  *     tags:
  *       - Auth
  *     summary: Authenticate on BGClients API REST server
- *     description: Authenticate an user to BGClients API REST server
+ *     description: Authenticate the user to BGClients API REST server
  *     requestBody:
  *       required: true
  *       content:

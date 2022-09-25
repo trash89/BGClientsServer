@@ -1,5 +1,3 @@
-import { SERVER, PORT } from "./app.js";
-
 const swaggerOptions = {
   definition: {
     openapi: "3.0.3",
@@ -19,7 +17,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: SERVER === "bgclientsserver.app.vercel" ? `https://${SERVER}/api/v1` : `http://${SERVER}:${PORT}/api/v1`,
+        url: process.env.NODE_ENV === "production" ? `https://bgclientsserver.vercel.app/api/v1` : `http://localhost:5000/api/v1`,
       },
     ],
     tags: [

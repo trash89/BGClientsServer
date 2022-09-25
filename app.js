@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import path, { dirname } from "path";
+import pathMod, { dirname } from "path";
 import { fileURLToPath } from "url";
 import "express-async-errors";
 
@@ -69,8 +69,7 @@ var options = {
   index: false,
   redirect: false,
   setHeaders: function (res, path, stat) {
-    console.log("path=", path);
-    res.set("Content-Type", "text/css");
+    if (pathMod.basename(path) === "swagger-ui.css") res.set("Content-Type", "text/css");
   },
 };
 app.use("/docs", express.static(__dirname + "/static", options));

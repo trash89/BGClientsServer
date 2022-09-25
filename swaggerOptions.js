@@ -1,4 +1,4 @@
-const PORT = process.env.PORT || 5000;
+import { SERVER, PORT } from "./app.js";
 
 const swaggerOptions = {
   definition: {
@@ -19,7 +19,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${PORT}/api/v1`,
+        url: SERVER === "bgclientsserver.app.vercel" ? `https://${SERVER}/api/v1` : `http://${SERVER}:${PORT}/api/v1`,
       },
     ],
     tags: [

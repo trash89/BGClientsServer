@@ -68,12 +68,13 @@ app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
 app.use("/docs/", swaggerUi.serve, swaggerUi.setup(swaggerSpecs, { explorer: false }));
 // only when ready to deploy
 app.use(express.static(path.resolve(__dirname, "./static")));
+app.use(express.static(path.resolve(__dirname, "./docs")));
 // console.log(absolutePath);
 // app.use(express.static(absolutePath));
 
-// app.get("*", (req, res) => {
-//   res.sendFile(path.resolve(__dirname, "./static", "index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "./static", "index.html"));
+});
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

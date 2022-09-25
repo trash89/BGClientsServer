@@ -67,6 +67,7 @@ app.use(
   "/docs",
   function (req, res, next) {
     res.set("X-Content-Type-Options", "sniff");
+    res.set("Content-Type", "text/html");
     //console.log(res);
     next();
   },

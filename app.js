@@ -65,7 +65,15 @@ app.use("/api/v1/clients", authenticateUser, clientsRouter);
 app.use("/api/v1/events", authenticateUser, eventsRouter);
 app.use("/api/v1/userfiles", authenticateUser, userfilesRouter);
 app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
-app.use("/docs/", swaggerUi.serve, swaggerUi.setup(swaggerSpecs, { explorer: false }));
+app.use(
+  "/docs/",
+  function (req, res, next) {
+    res.set("X-Content-Type-Options", "sniff");
+    next();
+  },
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpecs, { explorer: false })
+);
 // only when ready to deploy
 app.use("/static", express.static(__dirname + "/static"));
 app.use("/docs", express.static(__dirname + "/docs"));

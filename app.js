@@ -29,6 +29,9 @@ import swaggerOptions from "./swaggerOptions.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
+let SERVER = `localhost`;
+if (process.env.NODE_ENV === "production") SERVER = `bgclientsserver.vercel.app`;
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const swaggerSpecs = swaggerJsdoc(swaggerOptions);
 
@@ -84,4 +87,4 @@ app.get("*", (req, res) => {
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
-export { app, PORT };
+export { app, PORT, SERVER };

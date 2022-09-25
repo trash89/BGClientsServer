@@ -58,7 +58,11 @@ app.use(
 );
 app.use(fileupload());
 app.use(express.json());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 app.use(xss());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/clients", authenticateUser, clientsRouter);
@@ -69,6 +73,7 @@ app.use(
   "/docs/",
   function (req, res, next) {
     res.set("X-Content-Type-Options", "sniff");
+    res.set("Content-Type", "text/css");
     next();
   },
   swaggerUi.serve,

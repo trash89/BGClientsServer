@@ -25,6 +25,8 @@ import authenticateUser from "./middleware/auth.js";
 // swagger
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+//import swaggerUi from "swagger-ui-dist";
+//const absolutePath = swaggerUi.absolutePath();
 import swaggerOptions from "./swaggerOptions.js";
 
 dotenv.config();
@@ -66,7 +68,8 @@ app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
 app.use("/docs/", swaggerUi.serve, swaggerUi.setup(swaggerSpecs, { explorer: false }));
 // only when ready to deploy
 app.use(express.static(path.resolve(__dirname, "./static")));
-app.use(express.static(path.resolve(__dirname, "./docs/")));
+// console.log(absolutePath);
+// app.use(express.static(absolutePath));
 
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "./static", "index.html"));

@@ -60,7 +60,7 @@ app.use(fileupload());
 app.use(express.json());
 app.use(
   helmet({
-    contentSecurityPolicy: false,
+    noStiff: false,
   })
 );
 app.use(xss());
@@ -72,7 +72,7 @@ app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
 app.use(
   "/docs/",
   function (req, res, next) {
-    res.set("X-Content-Type-Options", "sniff");
+    //res.set("X-Content-Type-Options", "sniff");
     //res.set("Content-Type", "text/css");
     res.type("text/css");
     next();

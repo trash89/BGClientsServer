@@ -103,6 +103,16 @@
  *       - Clients
  *     summary: Delete a client
  *     description: Delete a client
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                  type: integer
+ *                  description: The client ID
  *     security:
  *       - bearerAuth: []
  *   put:

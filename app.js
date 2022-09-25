@@ -74,9 +74,9 @@ var options = {
 };
 app.use("/docs", express.static(__dirname + "/static", options));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs, { explorer: false }));
+
 // only when ready to deploy
 app.use("/static", express.static(__dirname + "/static"));
-
 app.get("*", (req, res) => {
   res.sendFile(pathMod.resolve(__dirname, "./static", "index.html"));
 });

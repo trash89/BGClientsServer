@@ -39,113 +39,70 @@ const swaggerOptions = {
         client: {
           type: "object",
           properties: {
-            id: {
-              type: "integer",
-            },
-            created_at: {
-              type: "string",
-            },
-            localuser_id: {
-              type: "integer",
-            },
-            name: {
-              type: "string",
-            },
-            description: {
-              type: "string",
-            },
-            address: {
-              type: "string",
-            },
-            email: {
-              type: "string",
-            },
-            user_id: {
-              type: "string",
-            },
+            id: { type: "integer" },
+            created_at: { type: "string" },
+            localuser_id: { type: "integer" },
+            name: { type: "string" },
+            description: { type: "string" },
+            address: { type: "string" },
+            email: { type: "string" },
+            user_id: { type: "string" },
           },
         },
         createClient: {
           type: "object",
           properties: {
-            email: {
-              type: "string",
+            email: { type: "string" },
+            password: { type: "string" },
+            name: { type: "string" },
+            description: { type: "string" },
+            address: { type: "string" },
+          },
+        },
+        deleteClient: {
+          type: "object",
+          properties: {
+            client: {
+              type: "object",
+              properties: {
+                id: { type: "integer" },
+                email: { type: "string" },
+                localuser_id: { type: "integer" },
+                user_id: { type: "string" },
+              },
             },
-            password: {
-              type: "string",
-            },
-            name: {
-              type: "string",
-            },
-            description: {
-              type: "string",
-            },
-            address: {
-              type: "string",
-            },
+            error: { type: "string" },
           },
         },
         event: {
           type: "object",
           properties: {
-            id: {
-              type: "integer",
-            },
-            client_id: {
-              type: "integer",
-            },
-            ev_name: {
-              type: "string",
-            },
-            ev_description: {
-              type: "string",
-            },
-            ev_date: {
-              type: "string",
-            },
-            user_id: {
-              type: "string",
-            },
-            displayed: {
-              type: "boolean",
-            },
+            id: { type: "integer" },
+            client_id: { type: "integer" },
+            ev_name: { type: "string" },
+            ev_description: { type: "string" },
+            ev_date: { type: "string" },
+            user_id: { type: "string" },
+            displayed: { type: "boolean" },
             clients: {
               type: "object",
-              properties: {
-                name: {
-                  type: "string",
-                },
-              },
+              properties: { name: { type: "string" } },
             },
           },
         },
         userfile: {
           type: "object",
           properties: {
-            id: {
-              type: "integer",
-            },
-            client_id: {
-              type: "integer",
-            },
-            file_name: {
-              type: "string",
-            },
-            file_description: {
-              type: "string",
-            },
-            user_id: {
-              type: "string",
-            },
-            displayed: {
-              type: "boolean",
-            },
+            id: { type: "integer" },
+            client_id: { type: "integer" },
+            file_name: { type: "string" },
+            file_description: { type: "string" },
+            user_id: { type: "string" },
+            displayed: { type: "boolean" },
             clients: {
               type: "object",
               properties: {
-                name: {
-                  type: "string",
-                },
+                name: { type: "string" },
               },
             },
           },
@@ -153,23 +110,13 @@ const swaggerOptions = {
         BasicErrorModel: {
           type: "object",
           properties: {
-            message: {
-              type: "string",
-            },
-            code: {
-              type: "integer",
-              minimum: 100,
-              maximum: 600,
-            },
+            message: { type: "string" },
+            code: { type: "integer", minimum: 100, maximum: 600 },
           },
         },
         authInvalid: {
           type: "object",
-          properties: {
-            msg: {
-              type: "string",
-            },
-          },
+          properties: { msg: { type: "string" } },
         },
         badRequest: {
           type: "object",
@@ -177,15 +124,24 @@ const swaggerOptions = {
             error: {
               type: "object",
               properties: {
-                message: {
-                  type: "string",
-                },
-                status: {
-                  type: "integer",
-                },
-                msg: {
-                  type: "string",
-                },
+                message: { type: "string" },
+                status: { type: "integer" },
+                msg: { type: "string" },
+              },
+            },
+          },
+        },
+        notFound: {
+          type: "object",
+          properties: {
+            error: {
+              type: "object",
+              properties: {
+                code: { type: "string" },
+                details: { type: "string" },
+                hint: { type: "string" },
+                message: { type: "string" },
+                msg: { type: "string" },
               },
             },
           },

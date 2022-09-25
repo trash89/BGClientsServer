@@ -86,9 +86,34 @@
  *       - Clients
  *     summary: Get one client details
  *     description: Get one client details
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Client ID
  *     responses:
  *       '200':
  *         description: Successful operation
+ *       '400':
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/badRequest"
+ *       '401':
+ *         description: Authentication invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/authInvalid"
+ *       '404':
+ *         description: Client not found, invalid ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/notFound"
  *     security:
  *       - bearerAuth: []
  *   patch:
@@ -103,16 +128,38 @@
  *       - Clients
  *     summary: Delete a client
  *     description: Delete a client
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Client ID
+ *     responses:
+ *       '200':
+ *         description: Successful operation, client deleted
+ *         content:
+ *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                  type: integer
- *                  description: The client ID
+ *                $ref: "#/components/schemas/deleteClient"
+ *       '400':
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/badRequest"
+ *       '401':
+ *         description: Authentication invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/authInvalid"
+ *       '404':
+ *         description: Client not found, invalid ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/notFound"
  *     security:
  *       - bearerAuth: []
  *   put:

@@ -83,8 +83,7 @@ const resetClient = async (req, res) => {
             if (email === client.email) {
               try {
                 const { error } = await supabase.auth.api.resetPasswordForEmail(client.email, {
-                  //redirectTo: "http://localhost:3000/passwordReset",
-                  redirectTo: "https://bgclients.vercel.app/passwordReset",
+                  redirectTo: process.env.NODE_ENV === "production" ? "https://bgclients.vercel.app/passwordReset" : "http://localhost:3000/passwordReset",
                 });
                 if (error) {
                   console.log(error);
@@ -151,7 +150,7 @@ const getOneClient = async (req, res) => {
           }
           return res
             .status(StatusCodes.OK)
-            .json({ client, events: { events, count: countEvents }, userfiles: { userfiles, count: countUserfiles }, errorClient });
+            .json({ client, events: { events, count: countEvents }, userfiles: { userfiles, count: countUserfiles }, error: errorClient });
         } catch (error) {
           console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });

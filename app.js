@@ -84,8 +84,8 @@ app.use(
 // only when ready to deploy
 //app.use("/static", express.static(__dirname + "/static"));
 //app.use("/docs", express.static(__dirname + "/docs"));
-app.use(express.static(path.resolve(__dirname, "./static")));
-app.use(express.static(path.resolve(__dirname, "./docs")));
+app.use(express.static(path.resolve(__dirname, "./static/")));
+app.use(express.static(path.resolve(__dirname, "./docs/")));
 // console.log(absolutePath);
 // app.use(express.static(absolutePath));
 

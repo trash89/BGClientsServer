@@ -4,11 +4,11 @@ import { UnAuthenticatedError } from "../errors/index.js";
 const auth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer")) {
-    throw new Error("Authentication Invalid");
+    throw new UnAuthenticatedError("Authentication Invalid");
   }
   const access_token = authHeader.split(" ")[1];
   if (!access_token) {
-    throw new Error("No token found");
+    throw new UnAuthenticatedError("No token found");
   }
   try {
     const { user, error: errorUser } = await supabase.auth.api.getUser(access_token);

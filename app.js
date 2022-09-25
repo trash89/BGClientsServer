@@ -64,8 +64,8 @@ app.use("/api/v1/events", authenticateUser, eventsRouter);
 app.use("/api/v1/userfiles", authenticateUser, userfilesRouter);
 app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
 
-app.use(express.static("/"));
 app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerSpecs, { explorer: false }));
+app.use(express.static("/"));
 // only when ready to deploy
 //app.use("/static", express.static(__dirname + "/static"));
 

@@ -3,6 +3,7 @@
   "name": "bgclients",
   "builds": [
     { "src": "/static/*.html", "use": "@vercel/static" },
+    { "src": "/docs/*.*", "use": "@vercel/static" },
     { "src": "server.js", "use": "@vercel/node" }
   ],
   "routes": [{ "src": "/(.*)", "dest": "/server.js" }]

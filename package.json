@@ -32,6 +32,8 @@
   },
   "devDependencies": {
     "axios": "^0.27.2",
-    "chai": "^4.3.6"
+    "chai": "^4.3.6",
+    "superagent": "^8.0.0",
+    "supertest": "^6.2.4"
   }
 }

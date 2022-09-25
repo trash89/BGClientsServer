@@ -89,9 +89,9 @@ app.use(express.static(path.resolve(__dirname, "./docs")));
 // console.log(absolutePath);
 // app.use(express.static(absolutePath));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./static", "index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "./static", "index.html"));
+// });
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

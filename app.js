@@ -69,11 +69,11 @@ app.use("/api/v1/clients", authenticateUser, clientsRouter);
 app.use("/api/v1/events", authenticateUser, eventsRouter);
 app.use("/api/v1/userfiles", authenticateUser, userfilesRouter);
 app.use("/api/v1/clientview", authenticateUser, clientviewRouter);
-app.use(express.static(path.resolve(__dirname, "./docs/")));
+
 app.use(
   "/docs/",
   function (req, res, next) {
-    res.set("X-Content-Type-Options", "sniff");
+    res.set("X-Content-Type-Options", "");
     res.set("Content-Type", "text/css");
     //res.type("text/css");
     console.log(res);
@@ -86,7 +86,7 @@ app.use(
 //app.use("/static", express.static(__dirname + "/static"));
 //app.use("/docs", express.static(__dirname + "/docs"));
 app.use(express.static(path.resolve(__dirname, "./static/")));
-
+//app.use(express.static(path.resolve(__dirname, "./docs/")));
 // console.log(absolutePath);
 // app.use(express.static(absolutePath));
 

@@ -74,7 +74,7 @@ app.use(
   function (req, res, next) {
     res.set("X-Content-Type-Options", "sniff");
     //res.set("Content-Type", "text/css");
-    res.type(".css");
+    res.type("text/css");
     next();
   },
   swaggerUi.serve,

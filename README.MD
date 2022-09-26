@@ -11,3 +11,5 @@ When a client connects, he can view his informations on his secured area and dow
 The Frontend is live on Vercel platform : https://bgclients.vercel.app
 
 This repository contains the API REST server, with routes documented with Swagger and OpenAPI standard.
+
+![Swagger Documentation ](Swagger_Doc.png)

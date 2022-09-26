@@ -17,7 +17,8 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: process.env.NODE_ENV === "production" ? `https://bgclientsserver.vercel.app/api/v1` : `http://localhost:5000/api/v1`,
+        //url: process.env.NODE_ENV === "production" ? `https://bgclientsserver.vercel.app/api/v1` : `http://localhost:5000/api/v1`,
+        url: "/api/v1",
       },
     ],
     tags: [

@@ -4,7 +4,7 @@ const swaggerOptions = {
     info: {
       title: "BGClients Express API documented with Swagger",
       version: "0.1.0",
-      description: "This is the documentation of BGClients API REST server, made with Express and Swagger",
+      description: "This is the documentation of BGClients API REST server, made with Express and Swagger in OpenAPI v3.0.3 format",
       license: {
         name: "MIT",
         url: "https://spdx.org/licenses/MIT.html",

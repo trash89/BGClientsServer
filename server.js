@@ -1,4 +1,7 @@
-import { app, PORT, SERVER } from "./app.js";
+import { app, PORT } from "./app.js";
+let SERVER = `localhost`;
+if (process.env.NODE_ENV === "production") SERVER = `bgclientsserver.vercel.app`;
+
 /**
  * Starts the express server
  *

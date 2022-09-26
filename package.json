@@ -1,16 +1,23 @@
 {
   "name": "bgclientsserver",
   "version": "1.0.0",
-  "description": "#### BG Clients API REST Server, documented with Swagger",
+  "description": "#### BG Clients API REST Server, documented with Swagger and OpenAPI",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "nodemon --ext js,html,json --watch . /supabase /static /routes /middleware /errors /controllers --ignore ./node_modules server.js",
-    "test": "mocha --sort --recursive"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "API REST",
+    "Swagger",
+    "OpenAPI",
+    "node",
+    "express",
+    "supabase"
+  ],
+  "author": "trash89@laposte.net",
+  "license": "GPL-3.0",
   "dependencies": {
     "@supabase/supabase-js": "^1.35.6",
     "body-parser": "^1.20.0",
@@ -32,8 +39,6 @@
     "node": "16.x"
   },
   "devDependencies": {
-    "chai": "^4.3.6",
-    "superagent": "^8.0.0",
-    "supertest": "^6.2.4"
+    "cypress": "^10.8.0"
   }
 }

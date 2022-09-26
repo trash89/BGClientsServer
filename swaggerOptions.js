@@ -101,21 +101,6 @@ const swaggerOptions = {
             address: { type: "string" },
           },
         },
-        deleteClient: {
-          type: "object",
-          properties: {
-            client: {
-              type: "object",
-              properties: {
-                id: { type: "integer", format: "int64" },
-                email: { type: "string" },
-                localuser_id: { type: "integer", format: "int64" },
-                user_id: { type: "string" },
-              },
-            },
-            error: { type: "string" },
-          },
-        },
         event: {
           type: "object",
           properties: {
@@ -130,6 +115,15 @@ const swaggerOptions = {
               type: "object",
               properties: { name: { type: "string" } },
             },
+          },
+        },
+        createEvent: {
+          type: "object",
+          properties: {
+            client_id: { type: "integer" },
+            ev_name: { type: "string" },
+            ev_description: { type: "string" },
+            ev_date: { type: "string" },
           },
         },
         userfile: {
@@ -147,6 +141,13 @@ const swaggerOptions = {
                 name: { type: "string" },
               },
             },
+          },
+        },
+        createFile: {
+          type: "object",
+          properties: {
+            client_id: { type: "integer" },
+            file_description: { type: "string" },
           },
         },
       },

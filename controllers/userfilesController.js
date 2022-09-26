@@ -14,7 +14,7 @@ const getOneFile = async (req, res) => {
       query = query.single();
       const { data: userfile, error } = await query;
       if (error) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "getOneFile" } });
+        return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "getOneFile" } });
       }
       if (userfile) {
         try {
@@ -22,7 +22,7 @@ const getOneFile = async (req, res) => {
             search: userfile.file_name,
           });
           if (errorStorageFile) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorStorageFile, msg: "getOneFiles, storage.list" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorStorageFile, msg: "getOneFiles, storage.list" } });
           }
 
           // const { signedURL, error: errorSignedURL } = await supabase.storage.from(`client${userfile.client_id}`).createSignedUrl(userfile.file_name, expiresIn);
@@ -33,7 +33,7 @@ const getOneFile = async (req, res) => {
             .from(`client${userfile.client_id}`)
             .getPublicUrl(userfile.file_name, expiresIn);
           if (errorPublicURL) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorPublicURL, msg: "getOneFile,storage.getPublicURL" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorPublicURL, msg: "getOneFile,storage.getPublicURL" } });
           }
           const obj = {
             ...userfile,
@@ -55,7 +55,7 @@ const getOneFile = async (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no file id provided" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
   }
 };
 
@@ -164,13 +164,13 @@ const createFile = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided for creating the file" } });
+        res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only POST method is accepted" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
   }
 };
 
@@ -373,13 +373,13 @@ const editFile = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided for updating the file" } });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only PATCH method is accepted" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
   }
 };
 
@@ -421,13 +421,13 @@ const deleteFile = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no file id provided" } });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only DELETE method is accepted" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
   }
 };
 

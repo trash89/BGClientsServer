@@ -20,7 +20,7 @@ const getOneEvent = async (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no event id provided" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no event id provided" } });
   }
 };
 
@@ -81,13 +81,13 @@ const createEvent = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided for creating the event" } });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only POST method is accepted" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
   }
 };
 
@@ -97,20 +97,29 @@ const editEvent = async (req, res) => {
     if (user.isAdmin) {
       const { id, client_id, ev_name, ev_description, ev_date, user_id, displayed } = req.body;
       try {
-        const { data: event, error } = await supabase.from("events").update({ client_id, ev_name, ev_description, ev_date, user_id, displayed }).eq("id", id);
-        if (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "editEvent,update events" } });
+        const { error: errorEventToEdit } = await supabase.from("events").select("id").eq("id", id).single();
+        if (errorEventToEdit) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEventToEdit, msg: "editEvent,select" } });
         }
-        return res.status(StatusCodes.OK).json({ event, error });
+        try {
+          const { data: event, error } = await supabase.from("events").update({ client_id, ev_name, ev_description, ev_date, user_id, displayed }).eq("id", id);
+          if (error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "editEvent,update events" } });
+          }
+          return res.status(StatusCodes.OK).json({ event, error });
+        } catch (error) {
+          console.log(error);
+          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        }
       } catch (error) {
         console.log(error);
         return res.status(StatusCodes.BAD_REQUEST).json({ error });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only PATCH method is accepted" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
   }
 };
 
@@ -121,23 +130,32 @@ const deleteEvent = async (req, res) => {
       const { id } = req.params;
       if (id) {
         try {
-          const { data: event, error } = await supabase.from("events").delete().eq("id", id);
-          if (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "deleteEvent,delete" } });
+          const { error: errorEventToDelete } = await supabase.from("events").select("id").eq("id", id).single();
+          if (errorEventToDelete) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEventToDelete, msg: "deleteEvent,select" } });
           }
-          return res.status(StatusCodes.OK).json({ event, error });
+          try {
+            const { data: event, error } = await supabase.from("events").delete().eq("id", id);
+            if (error) {
+              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "deleteEvent,delete" } });
+            }
+            return res.status(StatusCodes.OK).json({ event, error });
+          } catch (error) {
+            console.log(error);
+            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          }
         } catch (error) {
           console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no event id provided" } });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only DELETE method is accepted" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
   }
 };
 

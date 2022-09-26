@@ -10,33 +10,13 @@
  *     responses:
  *       '200':
  *         description: Successful operation
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 clients:
- *                   type: array
- *                   items:
- *                     $ref: "#/components/schemas/client"
- *                 error:
- *                   type: string
- *                 count:
- *                   type: integer
  *       '400':
  *         description: Unsuccessful operation
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/BasicErrorModel"
  *       '401':
  *         description: Authentication invalid
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/authInvalid"
  *     security:
  *       - bearerAuth: []
+ *
  *   post:
  *     tags:
  *       - Clients
@@ -64,31 +44,13 @@
  *     responses:
  *       '200':
  *         description: Successful operation, client created
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 client:
- *                   type: array
- *                   items:
- *                     $ref: "#/components/schemas/createClient"
- *                 error:
- *                   type: string
  *       '400':
  *         description: Bad Request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/badRequest"
  *       '401':
  *         description: Authentication invalid
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/authInvalid"
  *     security:
  *       - bearerAuth: []
+ *
  * /clients/{id}:
  *   get:
  *     tags:
@@ -106,51 +68,12 @@
  *     responses:
  *       '200':
  *         description: Successful operation
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 client:
- *                   $ref: "#/components/schemas/client"
- *                 events:
- *                   type: object
- *                   properties:
- *                     events:
- *                        type: array
- *                        items:
- *                          $ref: "#/components/schemas/event"
- *                     count:
- *                       type: integer
- *                 userfiles:
- *                   type: object
- *                   properties:
- *                     userfiles:
- *                        type: array
- *                        items:
- *                          $ref: "#/components/schemas/userfile"
- *                     count:
- *                       type: integer
- *                 error:
- *                   type: string
  *       '400':
  *         description: Bad Request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/badRequest"
  *       '401':
  *         description: Authentication invalid
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/authInvalid"
  *       '404':
  *         description: Client not found, invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/notFound"
  *     security:
  *       - bearerAuth: []
  *   patch:
@@ -183,29 +106,10 @@
  *     responses:
  *       '200':
  *         description: Successful operation
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 client:
- *                   type: array
- *                   items:
- *                     $ref: "#/components/schemas/client"
- *                 error:
- *                   type: string
  *       '401':
  *         description: Authentication invalid
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/authInvalid"
  *       '404':
  *         description: Client not found, invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/notFound"
  *     security:
  *       - bearerAuth: []
  *   delete:
@@ -224,28 +128,12 @@
  *     responses:
  *       '200':
  *         description: Successful operation, client deleted
- *         content:
- *           application/json:
- *             schema:
- *                $ref: "#/components/schemas/deleteClient"
  *       '400':
  *         description: Bad Request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/badRequest"
  *       '401':
  *         description: Authentication invalid
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/authInvalid"
  *       '404':
  *         description: Client not found, invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/notFound"
  *     security:
  *       - bearerAuth: []
  *
@@ -279,33 +167,12 @@
  *     responses:
  *       '200':
  *         description: Successful operation, password changed
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 client:
- *                   $ref: "#/components/schemas/client"
- *                 error:
- *                   type: string
  *       '400':
  *         description: Bad Request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/badRequest"
  *       '401':
  *         description: Authentication invalid
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/authInvalid"
  *       '404':
  *         description: Client not found, invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/notFound"
  *     security:
  *       - bearerAuth: []
  *   patch:
@@ -337,33 +204,12 @@
  *     responses:
  *       '200':
  *         description: Successful operation, reset link sent
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 client:
- *                   $ref: "#/components/schemas/client"
- *                 error:
- *                   type: string
  *       '400':
  *         description: Bad Request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/badRequest"
  *       '401':
  *         description: Authentication invalid
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/authInvalid"
  *       '404':
  *         description: Client not found, invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/notFound"
  *     security:
  *       - bearerAuth: []
  *   put:
@@ -404,33 +250,12 @@
  *     responses:
  *       '200':
  *         description: Successful operation, password changed
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 client:
- *                   $ref: "#/components/schemas/client"
- *                 error:
- *                   type: string
  *       '400':
  *         description: Bad Request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/badRequest"
  *       '401':
  *         description: Authentication invalid
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/authInvalid"
  *       '404':
  *         description: Client not found, invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/responses/notFound"
  *     security:
  *       - bearerAuth: []
  *

@@ -6,7 +6,6 @@ const getClientView = async (req, res) => {
   if (req.method === "POST") {
     const { id, email } = req.body;
     const user = req.user;
-    //console.log(user);
     if (id && email) {
       try {
         let query = supabase.from("clients").select("*").eq("user_id", id);
@@ -80,10 +79,10 @@ const getClientView = async (req, res) => {
         return res.status(StatusCodes.BAD_REQUEST).json({ error });
       }
     } else {
-      res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no id provided" } });
+      res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
     }
   } else {
-    res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "Method not allowed" } });
+    res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not allowed" } });
   }
 };
 

@@ -1,13 +1,102 @@
 import { supabase } from "../supabase/supabaseServer.js";
 import { StatusCodes } from "http-status-codes";
 
-const resetClient = async (req, res) => {
+const sendResetLink = async (req, res) => {
+  if (req.method === "PATCH") {
+    const { id } = req.params;
+    const { email } = req.body;
+    const user = req.user;
+    if (user.isAdmin) {
+      if (id && email && email !== "") {
+        try {
+          let query = supabase.from("clients").select("*").eq("id", parseInt(id));
+          if (!user.isAdmin) {
+            query = query.eq("user_id", user.id);
+          }
+          query = query.single();
+          const { data: client, error } = await query;
+          if (error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "sendResetLink,clients" } });
+          }
+          if (email === client.email) {
+            try {
+              const { error } = await supabase.auth.api.resetPasswordForEmail(client.email, {
+                redirectTo: process.env.NODE_ENV === "production" ? "https://bgclients.vercel.app/passwordReset" : "http://localhost:3000/passwordReset",
+              });
+              if (error) {
+                console.log(error);
+                return res.status(StatusCodes.BAD_REQUEST).json({ error });
+              }
+              return res.status(StatusCodes.OK).json({ client, error });
+            } catch (error) {
+              console.log(error);
+              return res.status(StatusCodes.BAD_REQUEST).json({ error });
+            }
+          } else {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "sendResetLink,invalid email" } });
+          }
+        } catch (error) {
+          console.log(error);
+          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        }
+      } else {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided" } });
+      }
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    }
+  } else {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "method not accepted" } });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  if (req.method === "POST") {
+    const { id } = req.params;
+    const { password } = req.body;
+    const user = req.user;
+    if (user.isAdmin) {
+      if (id && password && password !== "") {
+        // reset the password
+        try {
+          let query = supabase.from("clients").select("*").eq("id", parseInt(id));
+          if (!user.isAdmin) {
+            query = query.eq("user_id", user.id);
+          }
+          query = query.single();
+          const { data: client, error } = await query;
+          if (error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "changePassword,clients" } });
+          }
+          try {
+            const { data: user, error: errorUser } = await supabase.auth.api.updateUserById(client.user_id, { password });
+            if (errorUser) {
+              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUser, msg: "changePassword,updateUserById" } });
+            }
+            return res.status(StatusCodes.OK).json({ client, error });
+          } catch (error) {
+            console.log(error);
+            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          }
+        } catch (error) {
+          console.log(error);
+          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        }
+      }
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    }
+  } else {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "method not accepted" } });
+  }
+};
+
+const changePassword = async (req, res) => {
   if (req.method === "PUT") {
     const { id } = req.params;
-    const { password, email, password1, password2, access_token } = req.body;
+    const { email, password1, password2, access_token } = req.body;
     const user = req.user;
-    if (id && password && password !== "") {
-      // reset the password
+    if (id && email && email !== "" && password1 && password1 !== "" && password2 && password2 !== "" && access_token && access_token !== "") {
       try {
         let query = supabase.from("clients").select("*").eq("id", parseInt(id));
         if (!user.isAdmin) {
@@ -19,11 +108,20 @@ const resetClient = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,clients" } });
         }
         try {
-          const { data: user, error: errorUser } = await supabase.auth.api.updateUserById(client.user_id, { password });
-          if (errorUser) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUser, msg: "resetClient,updateUserById" } });
+          const { user: userHash, error: errorHash } = await supabase.auth.api.getUser(access_token);
+          if (errorHash) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorHash, msg: "resetClient,getUser" } });
           }
-          return res.status(StatusCodes.OK).json({ client, error });
+          if (userHash.id === client.user_id) {
+            const { data: user, error: errorUser } = await supabase.auth.api.updateUserById(client.user_id, { password: password1 });
+            if (errorUser) {
+              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUser, msg: "resetClient,updateUserById" } });
+            }
+            return res.status(StatusCodes.OK).json({ client, error });
+          } else {
+            console.log(error);
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "invalid user id" } });
+          }
         } catch (error) {
           console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
@@ -33,81 +131,10 @@ const resetClient = async (req, res) => {
         return res.status(StatusCodes.BAD_REQUEST).json({ error });
       }
     } else {
-      if (id && email && email !== "" && password1 && password1 !== "" && password2 && password2 !== "" && access_token && access_token !== "") {
-        try {
-          let query = supabase.from("clients").select("*").eq("id", parseInt(id));
-          if (!user.isAdmin) {
-            query = query.eq("user_id", user.id);
-          }
-          query = query.single();
-          const { data: client, error } = await query;
-          if (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,clients" } });
-          }
-          try {
-            const { user: userHash, error: errorHash } = await supabase.auth.api.getUser(access_token);
-            if (errorHash) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorHash, msg: "resetClient,getUser" } });
-            }
-            if (userHash.id === client.user_id) {
-              const { data: user, error: errorUser } = await supabase.auth.api.updateUserById(client.user_id, { password: password1 });
-              if (errorUser) {
-                return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUser, msg: "resetClient,updateUserById" } });
-              }
-              return res.status(StatusCodes.OK).json({ client, error });
-            } else {
-              console.log(error);
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "invalid user id" } });
-            }
-          } catch (error) {
-            console.log(error);
-            return res.status(StatusCodes.BAD_REQUEST).json({ error });
-          }
-        } catch (error) {
-          console.log(error);
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
-        }
-      } else {
-        // send reset link to user
-        if (id && email && email !== "") {
-          try {
-            let query = supabase.from("clients").select("*").eq("id", parseInt(id));
-            if (!user.isAdmin) {
-              query = query.eq("user_id", user.id);
-            }
-            query = query.single();
-            const { data: client, error } = await query;
-            if (error) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,clients" } });
-            }
-            if (email === client.email) {
-              try {
-                const { error } = await supabase.auth.api.resetPasswordForEmail(client.email, {
-                  redirectTo: process.env.NODE_ENV === "production" ? "https://bgclients.vercel.app/passwordReset" : "http://localhost:3000/passwordReset",
-                });
-                if (error) {
-                  console.log(error);
-                  return res.status(StatusCodes.BAD_REQUEST).json({ error });
-                }
-                return res.status(StatusCodes.OK).json({ client, error });
-              } catch (error) {
-                console.log(error);
-                return res.status(StatusCodes.BAD_REQUEST).json({ error });
-              }
-            } else {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,invalid email" } });
-            }
-          } catch (error) {
-            console.log(error);
-            return res.status(StatusCodes.BAD_REQUEST).json({ error });
-          }
-        } else {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided" } });
-        }
-      }
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "invalid data provided" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only PUT method is accepted" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
   }
 };
 
@@ -164,7 +191,7 @@ const getOneClient = async (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no id provided for getting the user" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
   }
 };
 
@@ -274,16 +301,20 @@ const createClient = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided for creating the user" } });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only POST method is accepted" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
   }
 };
-
+/**
+ * @description editClient Edit the client's data
+ * @author trash89@laposte.net
+ * @date 26/09/2022
+ */
 const editClient = async (req, res) => {
   if (req.method === "PATCH") {
     const user = req.user;
@@ -291,19 +322,19 @@ const editClient = async (req, res) => {
       const { id, email, name, description, address, user_id, localuser_id } = req.body;
       if (id && email && name && description && address && user_id && localuser_id) {
         try {
-          //update the user email
-          const { data: editUser, error: errorEditUser } = await supabase.auth.api.updateUserById(user_id, {
-            email,
-            email_confirm: true,
-          });
-          if (errorEditUser) {
-            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEditUser, msg: "editClient,updateUserById" } });
+          //update the client
+          const { data: client, error } = await supabase.from("clients").update({ email, name, description, address, user_id, localuser_id }).eq("id", id);
+          if (error) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "editClient,update clients" } });
           }
           try {
-            //update the client
-            const { data: client, error } = await supabase.from("clients").update({ email, name, description, address, user_id, localuser_id }).eq("id", id);
-            if (error) {
-              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "editClient,update clients" } });
+            //update the user email
+            const { data: editUser, error: errorEditUser } = await supabase.auth.api.updateUserById(user_id, {
+              email,
+              email_confirm: true,
+            });
+            if (errorEditUser) {
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEditUser, msg: "editClient,updateUserById" } });
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } catch (error) {
@@ -315,13 +346,13 @@ const editClient = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no complete data provided for editing the client" } });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only PATCH method is accepted" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
   }
 };
 
@@ -414,14 +445,14 @@ const deleteClient = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { message: "no id provided for deleting the client" } });
+        return res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { msg: "no data provided" } });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { message: "only DELETE method is accepted" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { msg: "method not accepted" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { message: "only admin users allowed" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { msg: "only admin users allowed" } });
   }
 };
 
-export { getAllClients, getOneClient, createClient, editClient, deleteClient, resetClient };
+export { getAllClients, getOneClient, createClient, editClient, deleteClient, resetPassword, changePassword, sendResetLink };

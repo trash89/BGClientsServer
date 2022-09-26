@@ -6,6 +6,7 @@
  *       - Auth
  *     summary: Authenticate on BGClients API REST server
  *     description: Authenticate the user to BGClients API REST server
+ *     operationId: login
  *     requestBody:
  *       required: true
  *       content:

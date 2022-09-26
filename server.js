@@ -1,5 +1,8 @@
 import { app, PORT, SERVER } from "./app.js";
-
+/**
+ * Starts the express server
+ *
+ */
 const start = async () => {
   try {
     app.listen(PORT, SERVER, () => {

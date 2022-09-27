@@ -9,6 +9,7 @@ import bodyParser from "body-parser";
 import helmet from "helmet";
 import xss from "xss-clean";
 import fileupload from "express-fileupload";
+import morgan from "morgan";
 
 // routers
 import authRouter from "./routes/authRoutes.js";
@@ -49,6 +50,10 @@ app.use(
     methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS", "HEAD", "CONNECT", "TRACE"],
   })
 );
+if (process.env.NODE_ENV !== "production") {
+  app.use(morgan("dev"));
+}
+
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({

@@ -23,14 +23,14 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-const BACKEND = "http://localhost:5000";
-Cypress.Commands.add("login", (email, password) => {
-  // make login call to endpoint
-  cy.visit(`${BACKEND}/api/v1`);
-  cy.request("POST", `${BACKEND}/api/v1/auth/login`, {
-    email: email,
-    password: password,
-  }).then((response) => {
-    Cypress.env("access_token", response.body.session.access_token);
-  });
+export const BACKEND = Cypress.env("BACKEND");
+Cypress.Commands.add("login", function (email, password) {
+  return cy
+    .request({
+      url: `${BACKEND}/auth/login`,
+      method: "POST",
+      failOnStatusCode: false,
+      body: { email, password },
+    })
+    .as("loginResponse");
 });

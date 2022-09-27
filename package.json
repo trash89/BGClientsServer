@@ -5,7 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon --ext js,html,json --watch . /supabase /static /routes /middleware /errors /controllers --ignore ./node_modules server.js",
+    "start": "nodemon --ext js,html,json --watch . /supabase /static /routes /middleware /errors /controllers --ignore ./node_modules --ignore ./cypress --ignore ./test server.js",
     "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
   },
   "keywords": [

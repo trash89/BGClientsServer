@@ -109,6 +109,8 @@ const getAllFiles = async (req, res) => {
 const createFile = async (req, res) => {
   if (req.method === "POST") {
     const user = req.user;
+    //console.log("req.body=", req.body);
+    //console.log("req.files=", req.files);
     if (user.isAdmin) {
       const { client_id, file_description } = req.body;
       const uploadFile = req.files?.file;
@@ -150,6 +152,7 @@ const createFile = async (req, res) => {
                 }
                 return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "createFile,insert files" } });
               }
+              console.log(file);
               return res.status(StatusCodes.OK).json({ file, error });
             } catch (error) {
               console.log(error);
@@ -179,18 +182,19 @@ const editFile = async (req, res) => {
     const user = req.user;
     if (user.isAdmin) {
       const { id, client_id, file_description, displayed } = req.body;
+      console.log(req.body);
       let uploadNewFile = null;
       if (req.files) {
         uploadNewFile = req.files.file;
       }
       //console.log("req.body=", req.body);
       //console.log("uploadNewFile=", uploadNewFile);
-      if (id && id !== "" && client_id && client_id !== "" && file_description && file_description !== "" && (displayed === "true" || displayed === "false")) {
+      if (id && id !== "" && client_id && client_id !== "" && file_description && file_description !== "") {
         try {
           //select the old file
           const { data: userfile, error: errorUserfile } = await supabase.from("files").select("*").eq("id", parseInt(id)).single();
           if (errorUserfile) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUserfile, msg: "editFile, select files" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUserfile, msg: "editFile, select files" } });
           }
           if (parseInt(client_id) !== userfile.client_id) {
             // client_id changed, so change the bucket
@@ -234,7 +238,7 @@ const editFile = async (req, res) => {
                     if (error) {
                       return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "editFile,update files table on new client" } });
                     }
-                    return res.status(StatusCodes.OK).json({ userfile: file, error });
+                    return res.status(StatusCodes.OK).json({ file, error });
                   } catch (error) {
                     console.log(error);
                     return res.status(StatusCodes.BAD_REQUEST).json({ error });
@@ -284,7 +288,7 @@ const editFile = async (req, res) => {
                     if (error) {
                       return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "editFile,update files table" } });
                     }
-                    return res.status(StatusCodes.OK).json({ userfile: file, error });
+                    return res.status(StatusCodes.OK).json({ file, error });
                   } catch (error) {
                     console.log(error);
                     return res.status(StatusCodes.BAD_REQUEST).json({ error });
@@ -343,7 +347,7 @@ const editFile = async (req, res) => {
                     if (errorOldFile) {
                       return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorOldFile, msg: "editFile,delete the old file" } });
                     }
-                    return res.status(StatusCodes.OK).json({ userfile: file, error });
+                    return res.status(StatusCodes.OK).json({ file, error });
                   } catch (error) {
                     console.log(error);
                     return res.status(StatusCodes.BAD_REQUEST).json({ error });
@@ -365,12 +369,12 @@ const editFile = async (req, res) => {
               if (errorUserfileToUpdate) {
                 return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUserfileToUpdate, msg: "editFile,update files" } });
               }
-              return res.status(StatusCodes.OK).json({ userfile: userfileToUpdate, error: errorUserfileToUpdate });
+              return res.status(StatusCodes.OK).json({ file: userfileToUpdate, error: errorUserfileToUpdate });
             }
           }
         } catch (error) {
           console.log(error);
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.NOT_FOUND).json({ error });
         }
       } else {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });

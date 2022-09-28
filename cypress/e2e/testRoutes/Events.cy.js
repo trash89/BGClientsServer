@@ -43,7 +43,6 @@ describe("/events", () => {
         .as("getEvents")
         .then((response) => {
           expect(response.status).to.eq(200);
-          expect(response.status).to.eq(200);
           expect(response.body).to.have.property("count");
           countEvents = response.body.count;
         });

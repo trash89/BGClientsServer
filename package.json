@@ -1,13 +1,13 @@
 {
   "name": "bgclientsserver",
   "version": "1.0.0",
-  "description": "#### BG Clients API REST Server, documented with Swagger and OpenAPI",
+  "description": "#### BG Clients API REST Server, documented with Swagger and OpenAPI ####",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "nodemon --ext js,html,json --watch . /supabase /static /routes /middleware /errors /controllers --ignore ./node_modules --ignore ./cypress --ignore ./test server.js",
-    "cypress:open": "cypress open --e2e --browser firefox",
-    "test": "cypress run --browser firefox --e2e --spec cypress/e2e/getAll"
+    "cypress:open": "NODE_ENV=test cypress open --e2e --browser firefox",
+    "test": "NODE_ENV=test cypress run --browser firefox --e2e --spec cypress/e2e/getAll"
   },
   "keywords": [
     "API REST",

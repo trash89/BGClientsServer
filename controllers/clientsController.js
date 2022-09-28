@@ -180,15 +180,15 @@ const getOneClient = async (req, res) => {
             .json({ client, events: { events, count: countEvents }, userfiles: { userfiles, count: countUserfiles }, error: errorClient });
         } catch (error) {
           console.log(error);
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.NOT_FOUND).json({ error });
         }
       } catch (error) {
         console.log(error);
-        return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        return res.status(StatusCodes.NOT_FOUND).json({ error });
       }
     } catch (error) {
       console.log(error);
-      return res.status(StatusCodes.BAD_REQUEST).json({ error });
+      return res.status(StatusCodes.NOT_FOUND).json({ error });
     }
   } else {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
@@ -205,7 +205,7 @@ const getAllClients = async (req, res) => {
     }
     const { data: clients, error, count } = await query;
     if (error) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "getAllClients" } });
+      return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "getAllClients" } });
     }
     return res.status(StatusCodes.OK).json({ clients, error, count });
   } catch (error) {

@@ -38,7 +38,7 @@ const getAllEvents = async (req, res) => {
     }
     const { data: events, error, count } = await query;
     if (error) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "getAllEvents" } });
+      return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "getAllEvents" } });
     }
     return res.status(StatusCodes.OK).json({ events, error, count });
   } catch (error) {

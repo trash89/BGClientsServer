@@ -1,4 +1,5 @@
 import { BACKEND } from "../../support/commands";
+import { faker } from "@faker-js/faker";
 let access_token = "";
 let headers = null;
 // login to backend
@@ -13,10 +14,11 @@ before(function () {
   });
 });
 
-// get the clients list
-describe("Clients", () => {
-  let client0 = null;
-  context("clients context", () => {
+// test the /clients API route
+describe("/clients", () => {
+  let createdClient = null;
+  let countClients = null;
+  context("/clients Context", () => {
     it("get the list of clients", function () {
       cy.request({
         method: "GET",
@@ -26,18 +28,107 @@ describe("Clients", () => {
         .as("clientsList")
         .then((response) => {
           expect(response.status).to.eq(200);
-          client0 = response.body.clients[0];
+          countClients = response.body.count;
         });
     });
-    it("get one client", function () {
+
+    it("Create a new client", function () {
+      const name = faker.company.name();
+      const description = faker.lorem.lines(1);
+      const password = faker.internet.password();
+      const email = faker.internet.email();
+      const address = faker.address.streetAddress({ useFullAddress: true });
       cy.request({
-        method: "GET",
-        url: `${BACKEND}/clients/${client0.id}`,
+        method: "POST",
+        url: `${BACKEND}/clients`,
         headers,
+        body: {
+          email,
+          name,
+          description,
+          password,
+          address,
+        },
       })
-        .as("client0")
+        .as("newClient")
         .then((response) => {
           expect(response.status).to.eq(200);
+          createdClient = response.body.client[0];
+        });
+    });
+
+    it("Edit the new created client", function () {
+      const id = createdClient.id;
+      const name = faker.company.name();
+      const description = faker.lorem.lines(1);
+      const email = faker.internet.email();
+      const address = faker.address.streetAddress({ useFullAddress: true });
+      const user_id = createdClient.user_id;
+      const localuser_id = createdClient.localuser_id;
+      cy.request({
+        method: "PATCH",
+        url: `${BACKEND}/clients/${createdClient.id}`,
+        headers,
+        body: {
+          id,
+          name,
+          description,
+          email,
+          address,
+          user_id,
+          localuser_id,
+        },
+      })
+        .as("deletedClient")
+        .then((response) => {
+          expect(response.status).to.eq(200);
+        });
+    });
+
+    it("Get the modified client", function () {
+      cy.request({
+        method: "GET",
+        url: `${BACKEND}/clients/${createdClient.id}`,
+        headers,
+      })
+        .as("modifiedClient")
+        .then((response) => {
+          expect(response.status).to.eq(200);
+        });
+    });
+    it("get the new list of clients", function () {
+      cy.request({
+        method: "GET",
+        url: `${BACKEND}/clients`,
+        headers,
+      })
+        .as("clientsList")
+        .then((response) => {
+          expect(response.status).to.eq(200);
+          expect(response.body.count).to.equal(countClients + 1);
+        });
+    });
+    it("Delete the new client", function () {
+      cy.request({
+        method: "DELETE",
+        url: `${BACKEND}/clients/${createdClient.id}`,
+        headers,
+      })
+        .as("deletedClient")
+        .then((response) => {
+          expect(response.status).to.eq(200);
+        });
+    });
+    it("get the new list of clients after delete", function () {
+      cy.request({
+        method: "GET",
+        url: `${BACKEND}/clients`,
+        headers,
+      })
+        .as("clientsList")
+        .then((response) => {
+          expect(response.status).to.eq(200);
+          expect(response.body.count).to.equal(countClients);
         });
     });
   });

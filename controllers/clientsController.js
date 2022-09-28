@@ -315,6 +315,7 @@ const createClient = async (req, res) => {
  * @author trash89@laposte.net
  * @date 26/09/2022
  */
+
 const editClient = async (req, res) => {
   if (req.method === "PATCH") {
     const user = req.user;

@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon --ext js,html,json --watch . /supabase /static /routes /middleware /errors /controllers --ignore ./node_modules --ignore ./cypress --ignore ./test server.js",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
+    "cypress:open": "cypress open --e2e --browser firefox",
+    "test": "cypress run --browser firefox --e2e --spec cypress/e2e/getAll"
   },
   "keywords": [
     "API REST",
@@ -40,6 +41,7 @@
     "node": "16.x"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.5.0",
     "cypress": "^10.8.0"
   }
 }

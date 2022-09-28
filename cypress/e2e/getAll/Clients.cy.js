@@ -18,16 +18,17 @@ before(function () {
 describe("/clients", () => {
   let createdClient = null;
   let countClients = null;
-  context("/clients Context", () => {
+  context("Context /clients", () => {
     it("get the list of clients", function () {
       cy.request({
         method: "GET",
         url: `${BACKEND}/clients`,
         headers,
       })
-        .as("clientsList")
+        .as("clientsListInitial")
         .then((response) => {
           expect(response.status).to.eq(200);
+          expect(response.body).to.have.property("count");
           countClients = response.body.count;
         });
     });
@@ -53,6 +54,7 @@ describe("/clients", () => {
         .as("newClient")
         .then((response) => {
           expect(response.status).to.eq(200);
+          expect(response.body).to.have.property("client");
           createdClient = response.body.client[0];
         });
     });
@@ -79,7 +81,7 @@ describe("/clients", () => {
           localuser_id,
         },
       })
-        .as("deletedClient")
+        .as("editedClient")
         .then((response) => {
           expect(response.status).to.eq(200);
         });
@@ -102,9 +104,10 @@ describe("/clients", () => {
         url: `${BACKEND}/clients`,
         headers,
       })
-        .as("clientsList")
+        .as("clientsNewList")
         .then((response) => {
           expect(response.status).to.eq(200);
+          expect(response.body).to.have.property("count");
           expect(response.body.count).to.equal(countClients + 1);
         });
     });
@@ -119,15 +122,22 @@ describe("/clients", () => {
           expect(response.status).to.eq(200);
         });
     });
+    it("Verify the new client was deleted", () => {
+      cy.request({ method: "GET", url: `${BACKEND}/clients/${createdClient.id}`, headers, failOnStatusCode: false }).then((response) => {
+        expect(response.status).to.eq(404);
+      });
+    });
+
     it("get the new list of clients after delete", function () {
       cy.request({
         method: "GET",
         url: `${BACKEND}/clients`,
         headers,
       })
-        .as("clientsList")
+        .as("clientsListAfterDelete")
         .then((response) => {
           expect(response.status).to.eq(200);
+          expect(response.body).to.have.property("count");
           expect(response.body.count).to.equal(countClients);
         });
     });

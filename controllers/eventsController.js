@@ -12,12 +12,12 @@ const getOneEvent = async (req, res) => {
       }
       const { data: event, error } = await query;
       if (error) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "getOneEvent" } });
+        return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "getOneEvent" } });
       }
       res.status(StatusCodes.OK).json({ event, error });
     } catch (error) {
       console.log(error);
-      return res.status(StatusCodes.BAD_REQUEST).json({ error });
+      return res.status(StatusCodes.NOT_FOUND).json({ error });
     }
   } else {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no event id provided" } });

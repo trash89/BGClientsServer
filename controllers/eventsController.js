@@ -16,7 +16,6 @@ const getOneEvent = async (req, res) => {
       }
       res.status(StatusCodes.OK).json({ event, error });
     } catch (error) {
-      console.log(error);
       return res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
   } else {
@@ -42,7 +41,6 @@ const getAllEvents = async (req, res) => {
     }
     return res.status(StatusCodes.OK).json({ events, error, count });
   } catch (error) {
-    console.log(error);
     return res.status(StatusCodes.BAD_REQUEST).json({ error });
   }
 };
@@ -73,11 +71,9 @@ const createEvent = async (req, res) => {
             }
             return res.status(StatusCodes.OK).json({ event, error });
           } catch (error) {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
@@ -108,11 +104,9 @@ const editEvent = async (req, res) => {
           }
           return res.status(StatusCodes.OK).json({ event, error });
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } catch (error) {
-        console.log(error);
         return res.status(StatusCodes.BAD_REQUEST).json({ error });
       }
     } else {
@@ -141,11 +135,9 @@ const deleteEvent = async (req, res) => {
             }
             return res.status(StatusCodes.OK).json({ event, error });
           } catch (error) {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {

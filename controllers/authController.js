@@ -21,11 +21,9 @@ const login = async (req, res) => {
         session: { access_token: session.access_token, refresh_token: session.refresh_token },
       });
     } catch (error) {
-      console.log(error);
       return res.status(StatusCodes.UNAUTHORIZED).json({ error });
     }
   } catch (error) {
-    console.log(error);
     return res.status(StatusCodes.UNAUTHORIZED).json({ error });
   }
 };

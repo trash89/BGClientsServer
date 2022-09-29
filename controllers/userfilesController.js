@@ -46,12 +46,10 @@ const getOneFile = async (req, res) => {
           };
           return res.status(StatusCodes.OK).json({ userfile: obj, error });
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       }
     } catch (error) {
-      console.log(error);
       return res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
   } else {
@@ -101,7 +99,6 @@ const getAllFiles = async (req, res) => {
     // return res.status(StatusCodes.OK).json({ userfiles: detailsUserFiles, error, count });
     return res.status(StatusCodes.OK).json({ userfiles, error, count });
   } catch (error) {
-    console.log(error);
     return res.status(StatusCodes.BAD_REQUEST).json({ error });
   }
 };
@@ -130,9 +127,7 @@ const createFile = async (req, res) => {
               try {
                 // if error on upload, try to remove
                 await supabase.storage.from(`client${client_id}`).remove([uploadFile.name]);
-              } catch (error) {
-                console.log(error);
-              }
+              } catch (error) {}
               return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUpload, msg: "createFile,error on upload" } });
             }
             try {
@@ -147,22 +142,18 @@ const createFile = async (req, res) => {
                   // try to delete the file from the bucket
                   await supabase.storage.from(`client${client_id}`).remove([uploadFile.name]);
                 } catch (error) {
-                  console.log(error);
                   return res.status(StatusCodes.NOT_FOUND).json({ error });
                 }
                 return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "createFile,insert files" } });
               }
               return res.status(StatusCodes.OK).json({ file, error });
             } catch (error) {
-              console.log(error);
               return res.status(StatusCodes.BAD_REQUEST).json({ error });
             }
           } catch (error) {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
@@ -181,7 +172,7 @@ const editFile = async (req, res) => {
     const user = req.user;
     if (user.isAdmin) {
       const { id, client_id, file_description, displayed } = req.body;
-      console.log(req.body);
+      //console.log(req.body);
       let uploadNewFile = null;
       if (req.files) {
         uploadNewFile = req.files.file;
@@ -239,15 +230,12 @@ const editFile = async (req, res) => {
                     }
                     return res.status(StatusCodes.OK).json({ file, error });
                   } catch (error) {
-                    console.log(error);
                     return res.status(StatusCodes.BAD_REQUEST).json({ error });
                   }
                 } catch (error) {
-                  console.log(error);
                   return res.status(StatusCodes.BAD_REQUEST).json({ error });
                 }
               } catch (error) {
-                console.log(error);
                 return res.status(StatusCodes.BAD_REQUEST).json({ error });
               }
             } else {
@@ -289,15 +277,12 @@ const editFile = async (req, res) => {
                     }
                     return res.status(StatusCodes.OK).json({ file, error });
                   } catch (error) {
-                    console.log(error);
                     return res.status(StatusCodes.BAD_REQUEST).json({ error });
                   }
                 } catch (error) {
-                  console.log(error);
                   return res.status(StatusCodes.BAD_REQUEST).json({ error });
                 }
               } catch (error) {
-                console.log(error);
                 return res.status(StatusCodes.BAD_REQUEST).json({ error });
               }
             }
@@ -317,9 +302,7 @@ const editFile = async (req, res) => {
                   try {
                     // if error on upload, try to remove
                     await supabase.storage.from(`client${userfile.client_id}`).remove([uploadNewFile.name]);
-                  } catch (error) {
-                    console.log(error);
-                  }
+                  } catch (error) {}
                   return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUploadedNewFile, msg: "editFile,error on upload new file" } });
                 }
                 try {
@@ -335,9 +318,7 @@ const editFile = async (req, res) => {
                     try {
                       // try to delete the file from the bucket
                       await supabase.storage.from(`client${userfile.client_id}`).remove([uploadNewFile.name]);
-                    } catch (error) {
-                      console.log(error);
-                    }
+                    } catch (error) {}
                     return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "editFile,update files" } });
                   }
                   try {
@@ -348,15 +329,12 @@ const editFile = async (req, res) => {
                     }
                     return res.status(StatusCodes.OK).json({ file, error });
                   } catch (error) {
-                    console.log(error);
                     return res.status(StatusCodes.BAD_REQUEST).json({ error });
                   }
                 } catch (error) {
-                  console.log(error);
                   return res.status(StatusCodes.BAD_REQUEST).json({ error });
                 }
               } catch (error) {
-                console.log(error);
                 return res.status(StatusCodes.BAD_REQUEST).json({ error });
               }
             } else {
@@ -372,8 +350,7 @@ const editFile = async (req, res) => {
             }
           }
         } catch (error) {
-          console.log(error);
-          return res.status(StatusCodes.NOT_FOUND).json({ error });
+          return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
@@ -412,15 +389,12 @@ const deleteFile = async (req, res) => {
               }
               return res.status(StatusCodes.OK).json({ file: deletedFile, error: errorDeletedFile });
             } catch (error) {
-              console.log(error);
               return res.status(StatusCodes.BAD_REQUEST).json({ error });
             }
           } catch (error) {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {

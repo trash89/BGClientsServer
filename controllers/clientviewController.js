@@ -61,21 +61,17 @@ const getClientView = async (req, res) => {
                 };
                 detailsUserFiles.push(obj);
               } catch (error) {
-                console.log(error);
                 return res.status(StatusCodes.BAD_REQUEST).json({ error });
               }
             }
             return res.status(StatusCodes.OK).json({ client, events, userfiles: detailsUserFiles, error: errorUserfiles });
           } catch (error) {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } catch (error) {
-        console.log(error);
         return res.status(StatusCodes.BAD_REQUEST).json({ error });
       }
     } else {

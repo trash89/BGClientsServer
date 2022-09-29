@@ -24,19 +24,16 @@ const sendResetLink = async (req, res) => {
                 redirectTo: process.env.NODE_ENV === "production" ? "https://bgclients.vercel.app/passwordReset" : "http://localhost:3000/passwordReset",
               });
               if (error) {
-                console.log(error);
                 return res.status(StatusCodes.NOT_FOUND).json({ error });
               }
               return res.status(StatusCodes.OK).json({ client, error });
             } catch (error) {
-              console.log(error);
               return res.status(StatusCodes.BAD_REQUEST).json({ error });
             }
           } else {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "sendResetLink,invalid email" } });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
@@ -75,11 +72,9 @@ const resetPassword = async (req, res) => {
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } catch (error) {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       }
@@ -119,15 +114,12 @@ const changePassword = async (req, res) => {
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } else {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "invalid user id" } });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } catch (error) {
-        console.log(error);
         return res.status(StatusCodes.BAD_REQUEST).json({ error });
       }
     } else {
@@ -179,15 +171,12 @@ const getOneClient = async (req, res) => {
             .status(StatusCodes.OK)
             .json({ client, events: { events, count: countEvents }, userfiles: { userfiles, count: countUserfiles }, error: errorClient });
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.NOT_FOUND).json({ error });
         }
       } catch (error) {
-        console.log(error);
         return res.status(StatusCodes.NOT_FOUND).json({ error });
       }
     } catch (error) {
-      console.log(error);
       return res.status(StatusCodes.NOT_FOUND).json({ error });
     }
   } else {
@@ -209,7 +198,6 @@ const getAllClients = async (req, res) => {
     }
     return res.status(StatusCodes.OK).json({ clients, error, count });
   } catch (error) {
-    console.log(error);
     return res.status(StatusCodes.BAD_REQUEST).json({ error });
   }
 };
@@ -239,7 +227,7 @@ const createClient = async (req, res) => {
                 // delete the supabase user
                 await supabase.auth.api.deleteUser(createdUser.id);
               } catch (error) {
-                console.log(error);
+                //console.log(error);
               }
               return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorLocalUser, msg: "createClient,insert localusers" } });
             }
@@ -261,7 +249,7 @@ const createClient = async (req, res) => {
                   // delete the supabase user
                   await supabase.auth.api.deleteUser(createdUser.id);
                 } catch (error) {
-                  console.log(error);
+                  //console.log(error);
                 }
                 return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClient, msg: "createClient,insert clients" } });
               }
@@ -278,26 +266,22 @@ const createClient = async (req, res) => {
                     // delete the supabase user
                     await supabase.auth.api.deleteUser(createdUser.id);
                   } catch (error) {
-                    console.log(error);
+                    //console.log(error);
                   }
                   return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "createClient,create bucket" } });
                 }
                 return res.status(StatusCodes.OK).json({ client, error: errorClient });
                 // now, the client is created
               } catch (error) {
-                console.log(error);
                 return res.status(StatusCodes.BAD_REQUEST).json({ error });
               }
             } catch (error) {
-              console.log(error);
               return res.status(StatusCodes.BAD_REQUEST).json({ error });
             }
           } catch (error) {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
@@ -334,11 +318,9 @@ const editClient = async (req, res) => {
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } catch (error) {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
@@ -409,35 +391,27 @@ const deleteClient = async (req, res) => {
                         // OK, return the deleted client
                         return res.status(StatusCodes.OK).json({ client: clientSel, error: errorDeleteUser });
                       } catch (error) {
-                        console.log(error);
                         return res.status(StatusCodes.BAD_REQUEST).json({ error });
                       }
                     } catch (error) {
-                      console.log(error);
                       return res.status(StatusCodes.BAD_REQUEST).json({ error });
                     }
                   } catch (error) {
-                    console.log(error);
                     return res.status(StatusCodes.BAD_REQUEST).json({ error });
                   }
                 } catch (error) {
-                  console.log(error);
                   return res.status(StatusCodes.BAD_REQUEST).json({ error });
                 }
               } catch (error) {
-                console.log(error);
                 return res.status(StatusCodes.BAD_REQUEST).json({ error });
               }
             } catch (error) {
-              console.log(error);
               return res.status(StatusCodes.BAD_REQUEST).json({ error });
             }
           } catch (error) {
-            console.log(error);
             return res.status(StatusCodes.BAD_REQUEST).json({ error });
           }
         } catch (error) {
-          console.log(error);
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {

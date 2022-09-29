@@ -44,7 +44,10 @@ const apiLimiter = rateLimiter({
 
 import { login } from "../controllers/authController.js";
 
-//router.route("/login").post(apiLimiter, login);
-router.route("/login").post(login);
+if (process.env.NODE_ENV === "development") {
+  router.route("/login").post(login);
+} else {
+  router.route("/login").post(apiLimiter, login);
+}
 
 export default router;

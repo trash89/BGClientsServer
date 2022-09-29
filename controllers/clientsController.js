@@ -16,7 +16,7 @@ const sendResetLink = async (req, res) => {
           query = query.single();
           const { data: client, error } = await query;
           if (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "sendResetLink,clients" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "sendResetLink,clients" } });
           }
           if (email === client.email) {
             try {
@@ -25,7 +25,7 @@ const sendResetLink = async (req, res) => {
               });
               if (error) {
                 console.log(error);
-                return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                return res.status(StatusCodes.NOT_FOUND).json({ error });
               }
               return res.status(StatusCodes.OK).json({ client, error });
             } catch (error) {
@@ -40,13 +40,13 @@ const sendResetLink = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "no data provided" } });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "method not accepted" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
   }
 };
 
@@ -66,12 +66,12 @@ const resetPassword = async (req, res) => {
           query = query.single();
           const { data: client, error } = await query;
           if (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "changePassword,clients" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "changePassword,clients" } });
           }
           try {
             const { data: user, error: errorUser } = await supabase.auth.api.updateUserById(client.user_id, { password });
             if (errorUser) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUser, msg: "changePassword,updateUserById" } });
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUser, msg: "changePassword,updateUserById" } });
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } catch (error) {
@@ -84,10 +84,10 @@ const resetPassword = async (req, res) => {
         }
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "only admin users allowed" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
     }
   } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: { message: "method not accepted" } });
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
   }
 };
 
@@ -105,17 +105,17 @@ const changePassword = async (req, res) => {
         query = query.single();
         const { data: client, error } = await query;
         if (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "resetClient,clients" } });
+          return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "resetClient,clients" } });
         }
         try {
           const { user: userHash, error: errorHash } = await supabase.auth.api.getUser(access_token);
           if (errorHash) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorHash, msg: "resetClient,getUser" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorHash, msg: "resetClient,getUser" } });
           }
           if (userHash.id === client.user_id) {
             const { data: user, error: errorUser } = await supabase.auth.api.updateUserById(client.user_id, { password: password1 });
             if (errorUser) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorUser, msg: "resetClient,updateUserById" } });
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUser, msg: "resetClient,updateUserById" } });
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } else {
@@ -228,7 +228,7 @@ const createClient = async (req, res) => {
             password,
           });
           if (errorCreatedUser) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorCreatedUser, msg: "createClient,createUser" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorCreatedUser, msg: "createClient,createUser" } });
           }
           try {
             // insert into localusers
@@ -241,7 +241,7 @@ const createClient = async (req, res) => {
               } catch (error) {
                 console.log(error);
               }
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorLocalUser, msg: "createClient,insert localusers" } });
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorLocalUser, msg: "createClient,insert localusers" } });
             }
             try {
               //insert into clients
@@ -263,7 +263,7 @@ const createClient = async (req, res) => {
                 } catch (error) {
                   console.log(error);
                 }
-                return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorClient, msg: "createClient,insert clients" } });
+                return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClient, msg: "createClient,insert clients" } });
               }
               try {
                 // creating the bucket
@@ -280,7 +280,7 @@ const createClient = async (req, res) => {
                   } catch (error) {
                     console.log(error);
                   }
-                  return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "createClient,create bucket" } });
+                  return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "createClient,create bucket" } });
                 }
                 return res.status(StatusCodes.OK).json({ client, error: errorClient });
                 // now, the client is created
@@ -310,11 +310,6 @@ const createClient = async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
   }
 };
-/**
- * @description editClient Edit the client's data
- * @author trash89@laposte.net
- * @date 26/09/2022
- */
 
 const editClient = async (req, res) => {
   if (req.method === "PATCH") {
@@ -373,37 +368,37 @@ const deleteClient = async (req, res) => {
             // delete from events
             const { data: events, error: errorEvents } = await supabase.from("events").delete().eq("client_id", clientSel.id);
             if (errorEvents) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEvents, msg: "deleteClient,delete events" } });
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEvents, msg: "deleteClient,delete events" } });
             }
             try {
               // delete from files
               const { data: files, error: errorFiles } = await supabase.from("files").delete().eq("client_id", clientSel.id);
               if (errorFiles) {
-                return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorFiles, msg: "deleteClient,delete files" } });
+                return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorFiles, msg: "deleteClient,delete files" } });
               }
               try {
                 // delete from clients
                 const { data: client, error: errorClient } = await supabase.from("clients").delete().eq("id", id);
                 if (errorClient) {
-                  return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorClient, msg: "deleteClient,delete clients" } });
+                  return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClient, msg: "deleteClient,delete clients" } });
                 }
                 try {
                   // delete the user
                   const { data: localUser, error: errorLocalUserDelete } = await supabase.from("localusers").delete().eq("id", clientSel.localuser_id);
                   if (errorLocalUserDelete) {
-                    return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorLocalUserDelete, msg: "deleteClient,delete localusers" } });
+                    return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorLocalUserDelete, msg: "deleteClient,delete localusers" } });
                   }
                   try {
                     // empty the bucket
                     const { data: emptyBucket, error: errorEmptyBucket } = await supabase.storage.emptyBucket(`client${clientSel.id}`);
                     if (errorEmptyBucket) {
-                      return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEmptyBucket, msg: "deleteClient,empty bucket" } });
+                      return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEmptyBucket, msg: "deleteClient,empty bucket" } });
                     }
                     try {
                       // delete the bucket
                       const { error } = await supabase.storage.deleteBucket(`client${clientSel.id}`);
                       if (error) {
-                        return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "deleteClient,delete bucket" } });
+                        return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "deleteClient,delete bucket" } });
                       }
                       try {
                         // delete the user

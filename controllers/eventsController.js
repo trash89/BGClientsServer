@@ -17,7 +17,7 @@ const getOneEvent = async (req, res) => {
       res.status(StatusCodes.OK).json({ event, error });
     } catch (error) {
       console.log(error);
-      return res.status(StatusCodes.NOT_FOUND).json({ error });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
   } else {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no event id provided" } });
@@ -57,7 +57,7 @@ const createEvent = async (req, res) => {
           // selecting user_id from clients
           const { data: client, error: errorClient } = await supabase.from("clients").select("user_id").eq("id", client_id).single();
           if (errorClient) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorClient, msg: "createEvent, select client" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClient, msg: "createEvent, select client" } });
           }
           try {
             // insert into events
@@ -69,7 +69,7 @@ const createEvent = async (req, res) => {
               user_id: client.user_id,
             });
             if (error) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "createEvent,insert events" } });
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "createEvent,insert events" } });
             }
             return res.status(StatusCodes.OK).json({ event, error });
           } catch (error) {
@@ -99,12 +99,12 @@ const editEvent = async (req, res) => {
       try {
         const { error: errorEventToEdit } = await supabase.from("events").select("id").eq("id", id).single();
         if (errorEventToEdit) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEventToEdit, msg: "editEvent,select" } });
+          return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEventToEdit, msg: "editEvent,select" } });
         }
         try {
           const { data: event, error } = await supabase.from("events").update({ client_id, ev_name, ev_description, ev_date, user_id, displayed }).eq("id", id);
           if (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "editEvent,update events" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "editEvent,update events" } });
           }
           return res.status(StatusCodes.OK).json({ event, error });
         } catch (error) {
@@ -132,12 +132,12 @@ const deleteEvent = async (req, res) => {
         try {
           const { error: errorEventToDelete } = await supabase.from("events").select("id").eq("id", id).single();
           if (errorEventToDelete) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...errorEventToDelete, msg: "deleteEvent,select" } });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEventToDelete, msg: "deleteEvent,select" } });
           }
           try {
             const { data: event, error } = await supabase.from("events").delete().eq("id", id);
             if (error) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "deleteEvent,delete" } });
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "deleteEvent,delete" } });
             }
             return res.status(StatusCodes.OK).json({ event, error });
           } catch (error) {

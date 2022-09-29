@@ -23,11 +23,10 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-export const BACKEND = Cypress.env("BACKEND");
 Cypress.Commands.add("login", function (email, password) {
   return cy
     .request({
-      url: `${BACKEND}/auth/login`,
+      url: `/auth/login`,
       method: "POST",
       failOnStatusCode: false,
       body: { email, password },

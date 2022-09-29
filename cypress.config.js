@@ -9,7 +9,7 @@ export default defineConfig({
       // with any changed environment variables
       return config;
     },
-    env: { BACKEND: "http://localhost:5000/api/v1" },
+    baseUrl: "http://localhost:5000/api/v1",
     video: false,
     videoUploadOnPasses: false,
     screenshotOnRunFailure: false,

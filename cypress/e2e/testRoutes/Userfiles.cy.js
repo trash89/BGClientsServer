@@ -1,4 +1,3 @@
-import { BACKEND } from "../../support/commands";
 import { faker } from "@faker-js/faker";
 let access_token = "";
 let headers = null;
@@ -15,7 +14,7 @@ before(function () {
 });
 
 // test the /userfiles API route
-describe("Userfiles list", () => {
+describe("Userfiles list", function () {
   let createdClient = null;
   let createdEvent = null;
   let createdUserfile = null;
@@ -26,7 +25,7 @@ describe("Userfiles list", () => {
     it("get the list of clients", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
       })
         .as("clientsListInitial")
@@ -39,7 +38,7 @@ describe("Userfiles list", () => {
     it("get the list of events", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/events`,
+        url: `/events`,
         headers,
       })
         .as("getEvents")
@@ -53,7 +52,7 @@ describe("Userfiles list", () => {
     it("get the list of userfiles", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/userfiles`,
+        url: `/userfiles`,
         headers,
       })
         .as("getUserfiles")
@@ -72,7 +71,7 @@ describe("Userfiles list", () => {
       const address = faker.address.streetAddress({ useFullAddress: true });
       cy.request({
         method: "POST",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
         body: {
           email,
@@ -96,7 +95,7 @@ describe("Userfiles list", () => {
       const ev_date = faker.date.soon();
       cy.request({
         method: "POST",
-        url: `${BACKEND}/events`,
+        url: `/events`,
         headers,
         body: {
           client_id: createdClient.id,
@@ -124,7 +123,7 @@ describe("Userfiles list", () => {
       });
       cy.request({
         method: "POST",
-        url: `${BACKEND}/userfiles`,
+        url: `/userfiles`,
         body: formData,
         headers: { ...headers, "Content-Type": `multipart/form-data; boundary=${formData._boundary}` },
       }).then((response) => {
@@ -137,7 +136,7 @@ describe("Userfiles list", () => {
     it("get the list of userfiles", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/userfiles`,
+        url: `/userfiles`,
         headers,
       })
         .as("getUserfiles")
@@ -154,7 +153,7 @@ describe("Userfiles list", () => {
       const displayed = !createdUserfile.displayed;
       cy.request({
         method: "PATCH",
-        url: `${BACKEND}/userfiles/${createdUserfile.id}`,
+        url: `/userfiles/${createdUserfile.id}`,
         headers,
         body: {
           id,
@@ -182,7 +181,7 @@ describe("Userfiles list", () => {
       });
       cy.request({
         method: "PATCH",
-        url: `${BACKEND}/userfiles/${createdUserfile.id}`,
+        url: `/userfiles/${createdUserfile.id}`,
         body: formData,
         headers: { ...headers, "Content-Type": `multipart/form-data; boundary=${formData._boundary}` },
       }).then((response) => {
@@ -196,7 +195,7 @@ describe("Userfiles list", () => {
     it("Get the modified file", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/userfiles/${createdUserfile.id}`,
+        url: `/userfiles/${createdUserfile.id}`,
         headers,
       })
         .as("modifiedUserfile")
@@ -207,7 +206,7 @@ describe("Userfiles list", () => {
     it("get the new list of userfiles", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/userfiles`,
+        url: `/userfiles`,
         headers,
       })
         .as("UserfilesNewList")
@@ -220,7 +219,7 @@ describe("Userfiles list", () => {
     it("Delete the new userfile", function () {
       cy.request({
         method: "DELETE",
-        url: `${BACKEND}/userfiles/${createdUserfile.id}`,
+        url: `/userfiles/${createdUserfile.id}`,
         headers,
       })
         .as("deletedUserfile")
@@ -228,8 +227,8 @@ describe("Userfiles list", () => {
           expect(response.status).to.eq(200);
         });
     });
-    it("Verify the new userfile was deleted", () => {
-      cy.request({ method: "GET", url: `${BACKEND}/userfiles/${createdUserfile.id}`, headers, failOnStatusCode: false }).then((response) => {
+    it("Verify the new userfile was deleted", function () {
+      cy.request({ method: "GET", url: `/userfiles/${createdUserfile.id}`, headers, failOnStatusCode: false }).then((response) => {
         expect(response.status).to.eq(404);
       });
     });
@@ -237,7 +236,7 @@ describe("Userfiles list", () => {
     it("get the new list of userfiles after delete", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/userfiles`,
+        url: `/userfiles`,
         headers,
       })
         .as("userfilesListAfterDelete")
@@ -250,7 +249,7 @@ describe("Userfiles list", () => {
     it("Delete the new client", function () {
       cy.request({
         method: "DELETE",
-        url: `${BACKEND}/clients/${createdClient.id}`,
+        url: `/clients/${createdClient.id}`,
         headers,
       })
         .as("deletedClient")
@@ -258,8 +257,8 @@ describe("Userfiles list", () => {
           expect(response.status).to.eq(200);
         });
     });
-    it("Verify the new client was deleted", () => {
-      cy.request({ method: "GET", url: `${BACKEND}/clients/${createdClient.id}`, headers, failOnStatusCode: false }).then((response) => {
+    it("Verify the new client was deleted", function () {
+      cy.request({ method: "GET", url: `/clients/${createdClient.id}`, headers, failOnStatusCode: false }).then((response) => {
         expect(response.status).to.eq(404);
       });
     });
@@ -267,7 +266,7 @@ describe("Userfiles list", () => {
     it("get the new list of clients after delete", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
       })
         .as("clientsListAfterDelete")

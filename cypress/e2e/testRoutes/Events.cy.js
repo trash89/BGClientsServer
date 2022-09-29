@@ -1,4 +1,3 @@
-import { BACKEND } from "../../support/commands";
 import { faker } from "@faker-js/faker";
 let access_token = "";
 let headers = null;
@@ -15,7 +14,7 @@ before(function () {
 });
 
 // test the /events API route
-describe("/events", () => {
+describe("/events", function () {
   let createdClient = null;
   let createdEvent = null;
   let countEvents = null;
@@ -24,7 +23,7 @@ describe("/events", () => {
     it("get the list of clients", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
       })
         .as("clientsListInitial")
@@ -37,7 +36,7 @@ describe("/events", () => {
     it("get the list of events", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/events`,
+        url: `/events`,
         headers,
       })
         .as("getEvents")
@@ -56,7 +55,7 @@ describe("/events", () => {
       const address = faker.address.streetAddress({ useFullAddress: true });
       cy.request({
         method: "POST",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
         body: {
           email,
@@ -80,7 +79,7 @@ describe("/events", () => {
       const ev_date = faker.date.soon();
       cy.request({
         method: "POST",
-        url: `${BACKEND}/events`,
+        url: `/events`,
         headers,
         body: {
           client_id: createdClient.id,
@@ -107,7 +106,7 @@ describe("/events", () => {
       const displayed = !createdEvent.displayed;
       cy.request({
         method: "PATCH",
-        url: `${BACKEND}/events/${createdEvent.id}`,
+        url: `/events/${createdEvent.id}`,
         headers,
         body: {
           id,
@@ -128,7 +127,7 @@ describe("/events", () => {
     it("Get the modified event", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/events/${createdEvent.id}`,
+        url: `/events/${createdEvent.id}`,
         headers,
       })
         .as("modifiedEvent")
@@ -139,7 +138,7 @@ describe("/events", () => {
     it("get the new list of events", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/events`,
+        url: `/events`,
         headers,
       })
         .as("EventsNewList")
@@ -153,7 +152,7 @@ describe("/events", () => {
     it("Delete the new event", function () {
       cy.request({
         method: "DELETE",
-        url: `${BACKEND}/events/${createdEvent.id}`,
+        url: `/events/${createdEvent.id}`,
         headers,
       })
         .as("deletedEvent")
@@ -162,7 +161,7 @@ describe("/events", () => {
         });
     });
     it("Verify the new event was deleted", () => {
-      cy.request({ method: "GET", url: `${BACKEND}/events/${createdEvent.id}`, headers, failOnStatusCode: false }).then((response) => {
+      cy.request({ method: "GET", url: `/events/${createdEvent.id}`, headers, failOnStatusCode: false }).then((response) => {
         expect(response.status).to.eq(404);
       });
     });
@@ -170,7 +169,7 @@ describe("/events", () => {
     it("get the new list of events after delete", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/events`,
+        url: `/events`,
         headers,
       })
         .as("eventsListAfterDelete")
@@ -183,7 +182,7 @@ describe("/events", () => {
     it("Delete the new client", function () {
       cy.request({
         method: "DELETE",
-        url: `${BACKEND}/clients/${createdClient.id}`,
+        url: `/clients/${createdClient.id}`,
         headers,
       })
         .as("deletedClient")
@@ -191,8 +190,8 @@ describe("/events", () => {
           expect(response.status).to.eq(200);
         });
     });
-    it("Verify the new client was deleted", () => {
-      cy.request({ method: "GET", url: `${BACKEND}/clients/${createdClient.id}`, headers, failOnStatusCode: false }).then((response) => {
+    it("Verify the new client was deleted", function () {
+      cy.request({ method: "GET", url: `/clients/${createdClient.id}`, headers, failOnStatusCode: false }).then((response) => {
         expect(response.status).to.eq(404);
       });
     });
@@ -200,7 +199,7 @@ describe("/events", () => {
     it("get the new list of clients after delete", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
       })
         .as("clientsListAfterDelete")
@@ -219,7 +218,7 @@ describe("/events", () => {
       const address = faker.address.streetAddress({ useFullAddress: true });
       cy.request({
         method: "POST",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
         body: {
           email,
@@ -243,7 +242,7 @@ describe("/events", () => {
       const ev_date = faker.date.soon();
       cy.request({
         method: "POST",
-        url: `${BACKEND}/events`,
+        url: `/events`,
         headers,
         body: {
           client_id: createdClient.id,
@@ -262,7 +261,7 @@ describe("/events", () => {
     it("Delete the new client with his event", function () {
       cy.request({
         method: "DELETE",
-        url: `${BACKEND}/clients/${createdClient.id}`,
+        url: `/clients/${createdClient.id}`,
         headers,
       })
         .as("deletedClient")
@@ -270,8 +269,8 @@ describe("/events", () => {
           expect(response.status).to.eq(200);
         });
     });
-    it("Verify the new client was deleted", () => {
-      cy.request({ method: "GET", url: `${BACKEND}/clients/${createdClient.id}`, headers, failOnStatusCode: false }).then((response) => {
+    it("Verify the new client was deleted", function () {
+      cy.request({ method: "GET", url: `/clients/${createdClient.id}`, headers, failOnStatusCode: false }).then((response) => {
         expect(response.status).to.eq(404);
       });
     });
@@ -279,7 +278,7 @@ describe("/events", () => {
     it("get the new list of clients after delete with event", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
       })
         .as("clientsListAfterDelete")
@@ -292,7 +291,7 @@ describe("/events", () => {
     it("get the new list of events after delete client with event", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/events`,
+        url: `/events`,
         headers,
       })
         .as("eventsListAfterDelete")

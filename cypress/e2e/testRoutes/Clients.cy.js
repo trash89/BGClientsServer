@@ -1,4 +1,3 @@
-import { BACKEND } from "../../support/commands";
 import { faker } from "@faker-js/faker";
 let access_token = "";
 let headers = null;
@@ -15,14 +14,14 @@ before(function () {
 });
 
 // test the /clients API route
-describe("/clients", () => {
+describe("/clients", function () {
   let createdClient = null;
   let countClients = null;
   context("Context /clients", () => {
     it("get the list of clients", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
       })
         .as("clientsListInitial")
@@ -41,7 +40,7 @@ describe("/clients", () => {
       const address = faker.address.streetAddress({ useFullAddress: true });
       cy.request({
         method: "POST",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
         body: {
           email,
@@ -69,7 +68,7 @@ describe("/clients", () => {
       const localuser_id = createdClient.localuser_id;
       cy.request({
         method: "PATCH",
-        url: `${BACKEND}/clients/${createdClient.id}`,
+        url: `/clients/${createdClient.id}`,
         headers,
         body: {
           id,
@@ -90,7 +89,7 @@ describe("/clients", () => {
     it("Get the modified client", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/clients/${createdClient.id}`,
+        url: `/clients/${createdClient.id}`,
         headers,
       })
         .as("modifiedClient")
@@ -101,7 +100,7 @@ describe("/clients", () => {
     it("get the new list of clients", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
       })
         .as("clientsNewList")
@@ -114,7 +113,7 @@ describe("/clients", () => {
     it("Delete the new client", function () {
       cy.request({
         method: "DELETE",
-        url: `${BACKEND}/clients/${createdClient.id}`,
+        url: `/clients/${createdClient.id}`,
         headers,
       })
         .as("deletedClient")
@@ -122,8 +121,8 @@ describe("/clients", () => {
           expect(response.status).to.eq(200);
         });
     });
-    it("Verify the new client was deleted", () => {
-      cy.request({ method: "GET", url: `${BACKEND}/clients/${createdClient.id}`, headers, failOnStatusCode: false }).then((response) => {
+    it("Verify the new client was deleted", function () {
+      cy.request({ method: "GET", url: `/clients/${createdClient.id}`, headers, failOnStatusCode: false }).then((response) => {
         expect(response.status).to.eq(404);
       });
     });
@@ -131,7 +130,7 @@ describe("/clients", () => {
     it("get the new list of clients after delete", function () {
       cy.request({
         method: "GET",
-        url: `${BACKEND}/clients`,
+        url: `/clients`,
         headers,
       })
         .as("clientsListAfterDelete")

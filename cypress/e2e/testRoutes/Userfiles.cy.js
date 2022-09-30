@@ -83,7 +83,7 @@ describe("Userfiles list", function () {
       })
         .as("newClient")
         .then((response) => {
-          expect(response.status).to.eq(200);
+          expect(response.status).to.eq(201);
           expect(response.body).to.have.property("client");
           createdClient = response.body.client[0];
         });
@@ -106,7 +106,7 @@ describe("Userfiles list", function () {
       })
         .as("newEvent")
         .then((response) => {
-          expect(response.status).to.eq(200);
+          expect(response.status).to.eq(201);
           expect(response.body).to.have.property("event");
           createdEvent = response.body.event[0];
         });
@@ -130,7 +130,7 @@ describe("Userfiles list", function () {
         const responseObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(response.body)));
         expect(responseObj).to.have.property("file");
         createdUserfile = responseObj.file[0];
-        expect(response.status).to.eq(200);
+        expect(response.status).to.eq(201);
       });
     });
     it("get the list of userfiles", function () {

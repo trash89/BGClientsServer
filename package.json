@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon --ext js,html,json --watch . /supabase /static /routes /middleware /errors /controllers --ignore ./node_modules --ignore ./cypress --ignore ./test server.js",
-    "cypress:open": "NODE_ENV=test cypress open --e2e --browser chromium",
-    "test": "NODE_ENV=test cypress run --e2e --browser chromium --spec cypress/e2e/testRoutes"
+    "cypress:open": "NODE_ENV=test cypress open --e2e --browser firefox",
+    "test": "NODE_ENV=test cypress run --e2e --browser firefox --spec cypress/e2e/testRoutes"
   },
   "keywords": [
     "API REST",

@@ -67,7 +67,7 @@ describe("/events", function () {
       })
         .as("newClient")
         .then((response) => {
-          expect(response.status).to.eq(200);
+          expect(response.status).to.eq(201);
           expect(response.body).to.have.property("client");
           createdClient = response.body.client[0];
         });
@@ -90,7 +90,7 @@ describe("/events", function () {
       })
         .as("newEvent")
         .then((response) => {
-          expect(response.status).to.eq(200);
+          expect(response.status).to.eq(201);
           expect(response.body).to.have.property("event");
           createdEvent = response.body.event[0];
         });
@@ -230,7 +230,7 @@ describe("/events", function () {
       })
         .as("newClient")
         .then((response) => {
-          expect(response.status).to.eq(200);
+          expect(response.status).to.eq(201);
           expect(response.body).to.have.property("client");
           createdClient = response.body.client[0];
         });
@@ -253,7 +253,7 @@ describe("/events", function () {
       })
         .as("newEvent")
         .then((response) => {
-          expect(response.status).to.eq(200);
+          expect(response.status).to.eq(201);
           expect(response.body).to.have.property("event");
           createdEvent = response.body.event[0];
         });

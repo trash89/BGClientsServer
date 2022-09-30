@@ -52,7 +52,7 @@ describe("/clients", function () {
       })
         .as("newClient")
         .then((response) => {
-          expect(response.status).to.eq(200);
+          expect(response.status).to.eq(201);
           expect(response.body).to.have.property("client");
           createdClient = response.body.client[0];
         });

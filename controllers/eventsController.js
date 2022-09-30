@@ -16,7 +16,7 @@ const getOneEvent = async (req, res) => {
       }
       res.status(StatusCodes.OK).json({ event, error });
     } catch (error) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error });
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
     }
   } else {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no event id provided" } });
@@ -41,7 +41,7 @@ const getAllEvents = async (req, res) => {
     }
     return res.status(StatusCodes.OK).json({ events, error, count });
   } catch (error) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
   }
 };
 
@@ -67,14 +67,14 @@ const createEvent = async (req, res) => {
               user_id: client.user_id,
             });
             if (error) {
-              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "createEvent,insert events" } });
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "createEvent,insert events" } });
             }
-            return res.status(StatusCodes.OK).json({ event, error });
+            return res.status(StatusCodes.CREATED).json({ event, error });
           } catch (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
           }
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } else {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
@@ -100,14 +100,14 @@ const editEvent = async (req, res) => {
         try {
           const { data: event, error } = await supabase.from("events").update({ client_id, ev_name, ev_description, ev_date, user_id, displayed }).eq("id", id);
           if (error) {
-            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "editEvent,update events" } });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editEvent,update events" } });
           }
           return res.status(StatusCodes.OK).json({ event, error });
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
       }
     } else {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
@@ -131,14 +131,14 @@ const deleteEvent = async (req, res) => {
           try {
             const { data: event, error } = await supabase.from("events").delete().eq("id", id);
             if (error) {
-              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "deleteEvent,delete" } });
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "deleteEvent,delete" } });
             }
             return res.status(StatusCodes.OK).json({ event, error });
           } catch (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
           }
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } else {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });

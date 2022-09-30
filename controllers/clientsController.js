@@ -24,17 +24,17 @@ const sendResetLink = async (req, res) => {
                 redirectTo: process.env.NODE_ENV === "production" ? "https://bgclients.vercel.app/passwordReset" : "http://localhost:3000/passwordReset",
               });
               if (error) {
-                return res.status(StatusCodes.NOT_FOUND).json({ error });
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
               }
               return res.status(StatusCodes.OK).json({ client, error });
             } catch (error) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error });
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
             }
           } else {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "sendResetLink,invalid email" } });
           }
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } else {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
@@ -72,11 +72,13 @@ const resetPassword = async (req, res) => {
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } catch (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
           }
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
+      } else {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
@@ -110,17 +112,17 @@ const changePassword = async (req, res) => {
           if (userHash.id === client.user_id) {
             const { data: user, error: errorUser } = await supabase.auth.api.updateUserById(client.user_id, { password: password1 });
             if (errorUser) {
-              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUser, msg: "resetClient,updateUserById" } });
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorUser, msg: "resetClient,updateUserById" } });
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } else {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "invalid user id" } });
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "invalid data provided" } });
           }
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
       }
     } else {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "invalid data provided" } });
@@ -156,7 +158,7 @@ const getOneClient = async (req, res) => {
         }
         const { data: events, error: errorEvents, count: countEvents } = await query;
         if (errorEvents) {
-          return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEvents, msg: "getOneClient, events" } });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorEvents, msg: "getOneClient, events" } });
         }
         try {
           let query = supabase.from("files").select("*", { count: "exact" }).eq("client_id", client.id).order("file_name", { ascending: true });
@@ -165,19 +167,19 @@ const getOneClient = async (req, res) => {
           }
           const { data: userfiles, error: errorUserfiles, count: countUserfiles } = await query;
           if (errorUserfiles) {
-            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUserfiles, msg: "getOneClient, userfiles" } });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorUserfiles, msg: "getOneClient, userfiles" } });
           }
           return res
             .status(StatusCodes.OK)
             .json({ client, events: { events, count: countEvents }, userfiles: { userfiles, count: countUserfiles }, error: errorClient });
         } catch (error) {
-          return res.status(StatusCodes.NOT_FOUND).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } catch (error) {
-        return res.status(StatusCodes.NOT_FOUND).json({ error });
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
       }
     } catch (error) {
-      return res.status(StatusCodes.NOT_FOUND).json({ error });
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
     }
   } else {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
@@ -194,11 +196,11 @@ const getAllClients = async (req, res) => {
     }
     const { data: clients, error, count } = await query;
     if (error) {
-      return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "getAllClients" } });
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "getAllClients" } });
     }
     return res.status(StatusCodes.OK).json({ clients, error, count });
   } catch (error) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
   }
 };
 
@@ -216,20 +218,16 @@ const createClient = async (req, res) => {
             password,
           });
           if (errorCreatedUser) {
-            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorCreatedUser, msg: "createClient,createUser" } });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorCreatedUser, msg: "createClient,createUser" } });
           }
           try {
             // insert into localusers
             const { data: localUser, error: errorLocalUser } = await supabase.from("localusers").insert({ user_id: createdUser.id, isAdmin: false });
             if (errorLocalUser) {
               // cleanup
-              try {
-                // delete the supabase user
-                await supabase.auth.api.deleteUser(createdUser.id);
-              } catch (error) {
-                //console.log(error);
-              }
-              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorLocalUser, msg: "createClient,insert localusers" } });
+              // delete the supabase user
+              await supabase.auth.api.deleteUser(createdUser.id);
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorLocalUser, msg: "createClient,insert localusers" } });
             }
             try {
               //insert into clients
@@ -243,46 +241,39 @@ const createClient = async (req, res) => {
               });
               if (errorClient) {
                 // cleanup
-                try {
-                  // delete the localuser
-                  await supabase.from("localusers").delete().eq("id", localUser[0].id);
-                  // delete the supabase user
-                  await supabase.auth.api.deleteUser(createdUser.id);
-                } catch (error) {
-                  //console.log(error);
-                }
-                return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClient, msg: "createClient,insert clients" } });
+                // delete the localuser
+                await supabase.from("localusers").delete().eq("id", localUser[0].id);
+                // delete the supabase user
+                await supabase.auth.api.deleteUser(createdUser.id);
+                //console.log(error);
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorClient, msg: "createClient,insert clients" } });
               }
               try {
                 // creating the bucket
                 const { error } = await supabase.storage.createBucket(`client${client[0].id}`, { public: true });
                 if (error) {
                   // cleanup
-                  try {
-                    // delete the created client
-                    await supabase.from("clients").delete().eq("id", client[0].id);
-                    // delete the localuser
-                    await supabase.from("localusers").delete().eq("id", localUser[0].id);
-                    // delete the supabase user
-                    await supabase.auth.api.deleteUser(createdUser.id);
-                  } catch (error) {
-                    //console.log(error);
-                  }
-                  return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "createClient,create bucket" } });
+                  // delete the created client
+                  await supabase.from("clients").delete().eq("id", client[0].id);
+                  // delete the localuser
+                  await supabase.from("localusers").delete().eq("id", localUser[0].id);
+                  // delete the supabase user
+                  await supabase.auth.api.deleteUser(createdUser.id);
+                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "createClient,create bucket" } });
                 }
-                return res.status(StatusCodes.OK).json({ client, error: errorClient });
+                return res.status(StatusCodes.CREATED).json({ client, error: errorClient });
                 // now, the client is created
               } catch (error) {
-                return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
               }
             } catch (error) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error });
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
             }
           } catch (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
           }
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } else {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
@@ -305,7 +296,7 @@ const editClient = async (req, res) => {
           //update the client
           const { data: client, error } = await supabase.from("clients").update({ email, name, description, address, user_id, localuser_id }).eq("id", id);
           if (error) {
-            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "editClient,update clients" } });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editClient,update clients" } });
           }
           try {
             //update the user email
@@ -314,14 +305,14 @@ const editClient = async (req, res) => {
               email_confirm: true,
             });
             if (errorEditUser) {
-              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEditUser, msg: "editClient,updateUserById" } });
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorEditUser, msg: "editClient,updateUserById" } });
             }
             return res.status(StatusCodes.OK).json({ client, error });
           } catch (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
           }
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } else {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
@@ -350,69 +341,69 @@ const deleteClient = async (req, res) => {
             // delete from events
             const { data: events, error: errorEvents } = await supabase.from("events").delete().eq("client_id", clientSel.id);
             if (errorEvents) {
-              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEvents, msg: "deleteClient,delete events" } });
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorEvents, msg: "deleteClient,delete events" } });
             }
             try {
               // delete from files
               const { data: files, error: errorFiles } = await supabase.from("files").delete().eq("client_id", clientSel.id);
               if (errorFiles) {
-                return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorFiles, msg: "deleteClient,delete files" } });
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorFiles, msg: "deleteClient,delete files" } });
               }
               try {
                 // delete from clients
                 const { data: client, error: errorClient } = await supabase.from("clients").delete().eq("id", id);
                 if (errorClient) {
-                  return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClient, msg: "deleteClient,delete clients" } });
+                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorClient, msg: "deleteClient,delete clients" } });
                 }
                 try {
                   // delete the user
                   const { data: localUser, error: errorLocalUserDelete } = await supabase.from("localusers").delete().eq("id", clientSel.localuser_id);
                   if (errorLocalUserDelete) {
-                    return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorLocalUserDelete, msg: "deleteClient,delete localusers" } });
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorLocalUserDelete, msg: "deleteClient,delete localusers" } });
                   }
                   try {
                     // empty the bucket
                     const { data: emptyBucket, error: errorEmptyBucket } = await supabase.storage.emptyBucket(`client${clientSel.id}`);
                     if (errorEmptyBucket) {
-                      return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEmptyBucket, msg: "deleteClient,empty bucket" } });
+                      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorEmptyBucket, msg: "deleteClient,empty bucket" } });
                     }
                     try {
                       // delete the bucket
                       const { error } = await supabase.storage.deleteBucket(`client${clientSel.id}`);
                       if (error) {
-                        return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "deleteClient,delete bucket" } });
+                        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "deleteClient,delete bucket" } });
                       }
                       try {
                         // delete the user
                         const { error: errorDeleteUser } = await supabase.auth.api.deleteUser(clientSel.user_id);
                         if (errorDeleteUser) {
-                          return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorDeleteUser, msg: "deleteClient,deleteUser" } });
+                          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorDeleteUser, msg: "deleteClient,deleteUser" } });
                         }
                         // OK, return the deleted client
                         return res.status(StatusCodes.OK).json({ client: clientSel, error: errorDeleteUser });
                       } catch (error) {
-                        return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
                       }
                     } catch (error) {
-                      return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
                     }
                   } catch (error) {
-                    return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
                   }
                 } catch (error) {
-                  return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
                 }
               } catch (error) {
-                return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
               }
             } catch (error) {
-              return res.status(StatusCodes.BAD_REQUEST).json({ error });
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
             }
           } catch (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
           }
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } else {
         return res.status(StatusCodes.BAD_REQUEST).json({ client: [], error: { msg: "no data provided" } });

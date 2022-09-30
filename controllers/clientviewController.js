@@ -24,17 +24,16 @@ const getClientView = async (req, res) => {
           }
           const { data: events, error: errorEvents } = await query;
           if (errorEvents) {
-            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEvents, msg: "getClientView, events" } });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorEvents, msg: "getClientView, events" } });
           }
           try {
             let query = supabase.from("files").select("*").eq("client_id", client.id).eq("displayed", true).order("id", { ascending: false });
             if (!user.isAdmin) {
               query = query.eq("user_id", user.id);
             }
-
             const { data: userfiles, error: errorUserfiles } = await query;
             if (errorUserfiles) {
-              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUserfiles, msg: "getClientView, files" } });
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorUserfiles, msg: "getClientView, files" } });
             }
             const iterator = userfiles.values();
             const detailsUserFiles = [];
@@ -44,11 +43,11 @@ const getClientView = async (req, res) => {
                   search: key.file_name,
                 });
                 if (errorStorageFiles) {
-                  return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorStorageFiles, msg: "getClientView, storage.list" } });
+                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorStorageFiles, msg: "getClientView, storage.list" } });
                 }
                 const { publicURL: signedURL, error: errorSignedURL } = supabase.storage.from(`client${key.client_id}`).getPublicUrl(key.file_name, expiresIn);
                 if (errorSignedURL) {
-                  return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorSignedURL, msg: "getClientView, storage.getPublicURL" } });
+                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorSignedURL, msg: "getClientView, storage.getPublicURL" } });
                 }
                 const obj = {
                   ...key,
@@ -61,18 +60,18 @@ const getClientView = async (req, res) => {
                 };
                 detailsUserFiles.push(obj);
               } catch (error) {
-                return res.status(StatusCodes.BAD_REQUEST).json({ error });
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
               }
             }
             return res.status(StatusCodes.OK).json({ client, events, userfiles: detailsUserFiles, error: errorUserfiles });
           } catch (error) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
           }
         } catch (error) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error });
+          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
       } catch (error) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error });
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
       }
     } else {
       res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });

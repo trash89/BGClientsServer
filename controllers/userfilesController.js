@@ -5,7 +5,7 @@ const expiresIn = 60 * 60 * 6; /// 6 hours
 const getOneFile = async (req, res) => {
   const { id } = req.params;
   const user = req.user;
-  if (id) {
+  if (id && id !== "") {
     try {
       let query = supabase.from("files").select("*").eq("id", parseInt(id));
       if (!user.isAdmin) {
@@ -70,7 +70,7 @@ const getAllFiles = async (req, res) => {
     }
     const { data: userfiles, error, count } = await query;
     if (error) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "getAllFiles" } });
+      return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "getAllFiles" } });
     }
     // const detailsUserFiles = [];
     // const iterator = userfiles.values();
@@ -184,75 +184,21 @@ const editFile = async (req, res) => {
           if (errorUserfile) {
             return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorUserfile, msg: "editFile, select files" } });
           }
-          if (parseInt(client_id) !== userfile.client_id) {
-            // client_id changed, so change the bucket
-            if (uploadNewFile) {
-              try {
-                // uploaded a new file to a new client bucket and delete the old file from the old client bucket
-                // move it to a new client bucket
-                const { data: fileInNewBucket, error: errorFileInNewBucket } = await supabase.storage
-                  .from(`client${client_id}`)
-                  .upload(uploadNewFile.name, uploadNewFile.data, {
-                    cacheControl: "604800",
-                    upsert: false,
-                    contentType: "application/pdf",
-                  });
-                if (errorFileInNewBucket) {
-                  return res
-                    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                    .json({ error: { ...errorFileInNewBucket, msg: "editFile,error on writing a new file to the new client bucket" } });
-                }
+          try {
+            //select user_id
+            const { data: client, error: errorClient } = await supabase.from("clients").select("user_id").eq("id", parseInt(client_id)).single();
+            if (errorClient) {
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClient, msg: "createFile, select client" } });
+            }
+            if (parseInt(client_id) !== userfile.client_id) {
+              // client_id changed, so change the bucket
+              if (uploadNewFile) {
                 try {
-                  // delete the old file in the old client bucket
-                  const { data: oldFileInBucket, error: errorOldFileInBucket } = await supabase.storage
-                    .from(`client${userfile.client_id}`)
-                    .remove([userfile.file_name]);
-                  if (errorOldFileInBucket) {
-                    return res
-                      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                      .json({ error: { ...errorOldFileInBucket, msg: "editFile,error on deleting old file in old bucket" } });
-                  }
-                  try {
-                    // update files table
-                    const { data: file, error } = await supabase
-                      .from("files")
-                      .update({
-                        client_id,
-                        file_name: uploadNewFile.name,
-                        file_description,
-                        displayed,
-                      })
-                      .eq("id", parseInt(id));
-                    if (error) {
-                      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editFile,update files table on new client" } });
-                    }
-                    return res.status(StatusCodes.OK).json({ file, error });
-                  } catch (error) {
-                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
-                  }
-                } catch (error) {
-                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
-                }
-              } catch (error) {
-                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
-              }
-            } else {
-              try {
-                // just move the exising file to the new client bucket
-                // read the existing file
-                const { data: oldFileInBucket, error: errorOldFileInBucket } = await supabase.storage
-                  .from(`client${userfile.client_id}`)
-                  .download(userfile.file_name);
-                if (errorOldFileInBucket) {
-                  return res
-                    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                    .json({ error: { ...errorOldFileInBucket, msg: "editFile,error on reading file in old bucket" } });
-                }
-                try {
+                  // uploaded a new file to a new client bucket and delete the old file from the old client bucket
                   // move it to a new client bucket
                   const { data: fileInNewBucket, error: errorFileInNewBucket } = await supabase.storage
                     .from(`client${client_id}`)
-                    .upload(userfile.file_name, oldFileInBucket, {
+                    .upload(uploadNewFile.name, uploadNewFile.data, {
                       cacheControl: "604800",
                       upsert: false,
                       contentType: "application/pdf",
@@ -260,90 +206,156 @@ const editFile = async (req, res) => {
                   if (errorFileInNewBucket) {
                     return res
                       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                      .json({ error: { ...errorFileInNewBucket, msg: "editFile,error on writing file to the new client bucket" } });
+                      .json({ error: { ...errorFileInNewBucket, msg: "editFile,error on writing a new file to the new client bucket" } });
                   }
                   try {
-                    // update files table
+                    // delete the old file in the old client bucket
+                    const { data: oldFileInBucket, error: errorOldFileInBucket } = await supabase.storage
+                      .from(`client${userfile.client_id}`)
+                      .remove([userfile.file_name]);
+                    if (errorOldFileInBucket) {
+                      return res
+                        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                        .json({ error: { ...errorOldFileInBucket, msg: "editFile,error on deleting old file in old bucket" } });
+                    }
+                    try {
+                      // update files table
+                      const { data: file, error } = await supabase
+                        .from("files")
+                        .update({
+                          client_id,
+                          file_name: uploadNewFile.name,
+                          file_description,
+                          displayed,
+                          user_id: client.user_id,
+                        })
+                        .eq("id", parseInt(id));
+                      if (error) {
+                        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editFile,update files table on new client" } });
+                      }
+                      return res.status(StatusCodes.OK).json({ file, error });
+                    } catch (error) {
+                      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+                    }
+                  } catch (error) {
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+                  }
+                } catch (error) {
+                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+                }
+              } else {
+                try {
+                  // just move the exising file to the new client bucket
+                  // read the existing file
+                  const { data: oldFileInBucket, error: errorOldFileInBucket } = await supabase.storage
+                    .from(`client${userfile.client_id}`)
+                    .download(userfile.file_name);
+                  if (errorOldFileInBucket) {
+                    return res
+                      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                      .json({ error: { ...errorOldFileInBucket, msg: "editFile,error on reading file in old bucket" } });
+                  }
+                  try {
+                    // move it to a new client bucket
+                    const { data: fileInNewBucket, error: errorFileInNewBucket } = await supabase.storage
+                      .from(`client${client_id}`)
+                      .upload(userfile.file_name, oldFileInBucket, {
+                        cacheControl: "604800",
+                        upsert: false,
+                        contentType: "application/pdf",
+                      });
+                    if (errorFileInNewBucket) {
+                      return res
+                        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                        .json({ error: { ...errorFileInNewBucket, msg: "editFile,error on writing file to the new client bucket" } });
+                    }
+                    try {
+                      // update files table
+                      const { data: file, error } = await supabase
+                        .from("files")
+                        .update({
+                          client_id,
+                          file_description,
+                          displayed,
+                          user_id: client.user_id,
+                        })
+                        .eq("id", parseInt(id));
+                      if (error) {
+                        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editFile,update files table" } });
+                      }
+                      return res.status(StatusCodes.OK).json({ file, error });
+                    } catch (error) {
+                      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+                    }
+                  } catch (error) {
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+                  }
+                } catch (error) {
+                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+                }
+              }
+            } else {
+              /// same client
+              if (uploadNewFile) {
+                try {
+                  // uploaded a new file
+                  const { data: uploadedNewFile, error: errorUploadedNewFile } = await supabase.storage
+                    .from(`client${userfile.client_id}`)
+                    .upload(uploadNewFile.name, uploadNewFile.data, {
+                      cacheControl: "604800",
+                      upsert: false,
+                      contentType: "application/pdf",
+                    });
+                  if (errorUploadedNewFile) {
+                    // if error on upload, try to remove
+                    await supabase.storage.from(`client${userfile.client_id}`).remove([uploadNewFile.name]);
+                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorUploadedNewFile, msg: "editFile,error on upload new file" } });
+                  }
+                  try {
                     const { data: file, error } = await supabase
                       .from("files")
                       .update({
-                        client_id,
+                        file_name: uploadNewFile.name,
                         file_description,
                         displayed,
+                        user_id: client.user_id,
                       })
                       .eq("id", parseInt(id));
                     if (error) {
-                      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editFile,update files table" } });
+                      // try to delete the file from the bucket
+                      await supabase.storage.from(`client${userfile.client_id}`).remove([uploadNewFile.name]);
+                      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editFile,update files" } });
                     }
-                    return res.status(StatusCodes.OK).json({ file, error });
+                    try {
+                      // delete the old file
+                      const { error: errorOldFile } = await supabase.storage.from(`client${userfile.client_id}`).remove([userfile.file_name]);
+                      if (errorOldFile) {
+                        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorOldFile, msg: "editFile,delete the old file" } });
+                      }
+                      return res.status(StatusCodes.OK).json({ file, error });
+                    } catch (error) {
+                      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+                    }
                   } catch (error) {
                     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
                   }
                 } catch (error) {
                   return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
                 }
-              } catch (error) {
-                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+              } else {
+                // no new file uploaded, only file_description and displayed to update
+                const { data: userfileToUpdate, error: errorUserfileToUpdate } = await supabase
+                  .from("files")
+                  .update({ file_description, displayed })
+                  .eq("id", parseInt(id));
+                if (errorUserfileToUpdate) {
+                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorUserfileToUpdate, msg: "editFile,update files" } });
+                }
+                return res.status(StatusCodes.OK).json({ file: userfileToUpdate, error: errorUserfileToUpdate });
               }
             }
-          } else {
-            /// same client
-            if (uploadNewFile) {
-              try {
-                // uploaded a new file
-                const { data: uploadedNewFile, error: errorUploadedNewFile } = await supabase.storage
-                  .from(`client${userfile.client_id}`)
-                  .upload(uploadNewFile.name, uploadNewFile.data, {
-                    cacheControl: "604800",
-                    upsert: false,
-                    contentType: "application/pdf",
-                  });
-                if (errorUploadedNewFile) {
-                  // if error on upload, try to remove
-                  await supabase.storage.from(`client${userfile.client_id}`).remove([uploadNewFile.name]);
-                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorUploadedNewFile, msg: "editFile,error on upload new file" } });
-                }
-                try {
-                  const { data: file, error } = await supabase
-                    .from("files")
-                    .update({
-                      file_name: uploadNewFile.name,
-                      file_description,
-                      displayed,
-                    })
-                    .eq("id", parseInt(id));
-                  if (error) {
-                    // try to delete the file from the bucket
-                    await supabase.storage.from(`client${userfile.client_id}`).remove([uploadNewFile.name]);
-                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editFile,update files" } });
-                  }
-                  try {
-                    // delete the old file
-                    const { error: errorOldFile } = await supabase.storage.from(`client${userfile.client_id}`).remove([userfile.file_name]);
-                    if (errorOldFile) {
-                      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorOldFile, msg: "editFile,delete the old file" } });
-                    }
-                    return res.status(StatusCodes.OK).json({ file, error });
-                  } catch (error) {
-                    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
-                  }
-                } catch (error) {
-                  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
-                }
-              } catch (error) {
-                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
-              }
-            } else {
-              // no new file uploaded, only file_description and displayed to update
-              const { data: userfileToUpdate, error: errorUserfileToUpdate } = await supabase
-                .from("files")
-                .update({ file_description, displayed })
-                .eq("id", parseInt(id));
-              if (errorUserfileToUpdate) {
-                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorUserfileToUpdate, msg: "editFile,update files" } });
-              }
-              return res.status(StatusCodes.OK).json({ file: userfileToUpdate, error: errorUserfileToUpdate });
-            }
+          } catch (error) {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
           }
         } catch (error) {
           return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });

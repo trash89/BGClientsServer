@@ -91,23 +91,50 @@ const editEvent = async (req, res) => {
   if (req.method === "PATCH") {
     const user = req.user;
     if (user.isAdmin) {
-      const { id, client_id, ev_name, ev_description, ev_date, user_id, displayed } = req.body;
-      try {
-        const { error: errorEventToEdit } = await supabase.from("events").select("id").eq("id", id).single();
-        if (errorEventToEdit) {
-          return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEventToEdit, msg: "editEvent,select" } });
-        }
+      const { id, client_id, ev_name, ev_description, ev_date, displayed } = req.body;
+      if (
+        id &&
+        id !== "" &&
+        client_id &&
+        client_id !== "" &&
+        ev_name &&
+        ev_name !== "" &&
+        ev_description &&
+        ev_description !== "" &&
+        ev_date &&
+        ev_date !== ""
+      ) {
         try {
-          const { data: event, error } = await supabase.from("events").update({ client_id, ev_name, ev_description, ev_date, user_id, displayed }).eq("id", id);
-          if (error) {
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editEvent,update events" } });
+          const { error: errorEventToEdit } = await supabase.from("events").select("id").eq("id", id).single();
+          if (errorEventToEdit) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorEventToEdit, msg: "editEvent,select" } });
           }
-          return res.status(StatusCodes.OK).json({ event, error });
+          try {
+            // selecting user_id from clients
+            const { data: client, error: errorClient } = await supabase.from("clients").select("user_id").eq("id", client_id).single();
+            if (errorClient) {
+              return res.status(StatusCodes.NOT_FOUND).json({ error: { ...errorClient, msg: "createEvent, select client" } });
+            }
+            try {
+              const { data: event, error } = await supabase
+                .from("events")
+                .update({ client_id, ev_name, ev_description, ev_date, user_id: client.user_id, displayed })
+                .eq("id", id);
+              if (error) {
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...error, msg: "editEvent,update events" } });
+              }
+              return res.status(StatusCodes.OK).json({ event, error });
+            } catch (error) {
+              return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+            }
+          } catch (error) {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+          }
         } catch (error) {
           return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
         }
-      } catch (error) {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+      } else {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
       }
     } else {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });
@@ -122,7 +149,7 @@ const deleteEvent = async (req, res) => {
     const user = req.user;
     if (user.isAdmin) {
       const { id } = req.params;
-      if (id) {
+      if (id && id !== "") {
         try {
           const { error: errorEventToDelete } = await supabase.from("events").select("id").eq("id", id).single();
           if (errorEventToDelete) {

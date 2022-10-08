@@ -17,3 +17,5 @@ This repository contains the REST API server, with routes documented with Swagge
 Live at https://bgclientsserver.vercel.app
 
 ![Query](./Screenshot.png)
+
+## `Enjoy! :)`

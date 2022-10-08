@@ -1,4 +1,4 @@
-# API REST server for BG Clients Application
+# REST API server for BG Clients Application
 
 Live at https://bgclientsserver.vercel.app
 
@@ -10,6 +10,6 @@ When a client connects, he can view his informations on his secured area and dow
 
 The Frontend is live on Vercel platform : https://bgclients.vercel.app
 
-This repository contains the API REST server, with routes documented with Swagger and OpenAPI standard, with API routes tested with Cypress E2E.
+This repository contains the REST API server, with routes documented with Swagger and OpenAPI standard, with API routes tested with Cypress E2E.
 
 ![Swagger Documentation ](Swagger_Doc.png)

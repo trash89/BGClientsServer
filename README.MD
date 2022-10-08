@@ -18,4 +18,4 @@ Live at https://bgclientsserver.vercel.app
 
 ![Query](./Screenshot.png)
 
-## `Enjoy! :)`
+### `Enjoy! :)`

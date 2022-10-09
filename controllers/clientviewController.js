@@ -19,13 +19,11 @@ const getClientView = async (req, res) => {
         }
         try {
           let query = supabase.from("events").select("*").eq("client_id", client.id).eq("displayed", true).order("ev_date", { ascending: false });
-          if (!user.isAdmin) {
-            query = query.eq("user_id", user.id);
-          }
           const { data: events, error: errorEvents } = await query;
           if (errorEvents) {
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: { ...errorEvents, msg: "getClientView, events" } });
           }
+          console.log(events);
           try {
             let query = supabase.from("files").select("*").eq("client_id", client.id).eq("displayed", true).order("id", { ascending: false });
             if (!user.isAdmin) {

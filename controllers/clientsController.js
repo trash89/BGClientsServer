@@ -6,41 +6,38 @@ const sendResetLink = async (req, res) => {
     const { id } = req.params;
     const { email } = req.body;
     const user = req.user;
-    if (user.isAdmin) {
-      if (id && email && email !== "") {
-        try {
-          let query = supabase.from("clients").select("*").eq("id", parseInt(id));
-          if (!user.isAdmin) {
-            query = query.eq("user_id", user.id);
-          }
-          query = query.single();
-          const { data: client, error } = await query;
-          if (error) {
-            return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "sendResetLink,clients" } });
-          }
-          if (email === client.email) {
-            try {
-              const { error } = await supabase.auth.api.resetPasswordForEmail(client.email, {
-                redirectTo: process.env.NODE_ENV === "production" ? "https://bgclients.vercel.app/passwordReset" : "http://localhost:3000/passwordReset",
-              });
-              if (error) {
-                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
-              }
-              return res.status(StatusCodes.OK).json({ client, error });
-            } catch (error) {
+
+    if (id && email && email !== "") {
+      try {
+        let query = supabase.from("clients").select("*").eq("id", parseInt(id));
+        if (!user.isAdmin) {
+          query = query.eq("user_id", user.id);
+        }
+        query = query.single();
+        const { data: client, error } = await query;
+        if (error) {
+          return res.status(StatusCodes.NOT_FOUND).json({ error: { ...error, msg: "sendResetLink,clients" } });
+        }
+        if (email === client.email) {
+          try {
+            const { error } = await supabase.auth.api.resetPasswordForEmail(client.email, {
+              redirectTo: process.env.NODE_ENV === "production" ? "https://bgclients.vercel.app/passwordReset" : "http://localhost:3000/passwordReset",
+            });
+            if (error) {
               return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
             }
-          } else {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "sendResetLink,invalid email" } });
+            return res.status(StatusCodes.OK).json({ client, error });
+          } catch (error) {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
           }
-        } catch (error) {
-          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+        } else {
+          return res.status(StatusCodes.BAD_REQUEST).json({ error: { ...error, msg: "sendResetLink,invalid email" } });
         }
-      } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
+      } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
       }
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "only admin users allowed" } });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "no data provided" } });
     }
   } else {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: { msg: "method not accepted" } });

@@ -2,7 +2,7 @@ const swaggerOptions = {
   definition: {
     openapi: "3.0.3",
     info: {
-      title: "BGClients REST API documented with Swagger",
+      title: "BGClients REST API server",
       version: "0.1.0",
       description: "This is the documentation of BGClients REST API server, made with Express and Swagger in OpenAPI v3.0.3 format",
       license: {
@@ -22,7 +22,7 @@ const swaggerOptions = {
       },
     ],
     tags: [
-      { name: "Auth", description: "BGClients server API REST Authentication" },
+      { name: "Authentication", description: "Authenticatate on the REST API server" },
       { name: "Clients", description: "Operations on clients" },
       { name: "Events", description: "Operations on client's events" },
       { name: "Userfiles", description: "Operations on client's files" },

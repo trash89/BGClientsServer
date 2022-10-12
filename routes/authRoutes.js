@@ -3,9 +3,9 @@
  * /auth/login:
  *   post:
  *     tags:
- *       - Auth
- *     summary: Authenticate on BGClients API REST server
- *     description: Authenticate the user to BGClients API REST server
+ *       - Authentication
+ *     summary: Authenticate an user on the REST API server
+ *     description: Authenticate an user on the REST API server.Returns a Bearer token
  *     operationId: login
  *     requestBody:
  *       required: true
